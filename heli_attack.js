@@ -8,15 +8,15 @@ var TIME_STEP = 1000/60;
 // Game class
 //----------------------------------
 var Game = function (canvasId) {
-  var myself = this;
+	var myself = this;
   
-  // Rendering variables
-  this.screen = document.getElementById(canvasId);
-  this.screenContext = this.screen.getContext('2d');
-  this.backBuffer = document.createElement('canvas');
-	this.backBuffer.width = this.screen.width;
+ 	 // Rendering variables
+  	this.screen = document.getElementById(canvasId);
+  	this.screenContext = this.screen.getContext('2d');
+  	this.backBuffer = document.createElement('canvas');
+  	this.backBuffer.width = this.screen.width;
 	this.backBuffer.height = this.screen.height;
-  this.backBufferContext = this.backBuffer.getContext('2d');
+ 	this.backBufferContext = this.backBuffer.getContext('2d');
 	
 	this.inputState = {
 		up: false,
@@ -25,20 +25,22 @@ var Game = function (canvasId) {
 		right: false
 	};
 	
-  // Game variables
+  	// Game variables
 	this.gui = new GUI(this);
-  this.heli = new Helicopter(this, 200, 200);
-  this.background = new Background(this, 0, 0);
+  	this.heli = new Helicopter(this, 200, 200);
+  	this.background = new Background(this, 0, 0);
 	
 	// TODO: Add enemies
   
-  // Timing variables
+  	// Timing variables
 	this.elapsedTime = 0.0;
-  this.startTime = 0;
-  this.lastTime = 0;
-  this.gameTime = 0;
-  this.fps = 0;
-  this.STARTING_FPS = 60;
+  	this.startTime = 0;
+  	this.lastTime = 0;
+  	this.gameTime = 0;
+  	this.fps = 0;
+  	this.STARTING_FPS = 60;
+
+  	this.targets = [];
 	
 }
 	
@@ -50,6 +52,10 @@ Game.prototype = {
 		var self = this;
 		
 		this.heli.update(elapsedTime, this.inputState);
+		
+		for(var i = 0; i < this.targets.length; i++){
+			this.targets[i].update();	
+		}
 				
 	},
 	
@@ -63,6 +69,10 @@ Game.prototype = {
 		
 		// Render game objects
 		this.heli.render(this.backBufferContext);
+
+		for(var i = 0; i < this.targets.length; i++){
+			this.targets[i].render(this.backBufferContext, this.background.back_x);	
+		}
 		
 		// Render GUI
 		this.gui.render();
@@ -108,6 +118,24 @@ Game.prototype = {
 				break;
 		}
 	},
+
+	initTargets: function(){
+
+		for(var i = 0; i < 10; i++){
+
+			// Pick random x locations for the balloons.
+			var x = (Math.random() * (800 - 200) + 200) + 220 * i;
+
+			// Pick a y location between 10 and 450.
+			var y = Math.random() * (450 - 10) + 10;
+
+			// Randomly pick whether the balloon will begin by floating up, or floating down.
+			var direction = Math.random() < 0.5; 
+
+			this.targets.push(new Target(x, y, direction));
+		}
+
+	},
 	
 	start: function() {
 		var self = this;
@@ -115,6 +143,8 @@ Game.prototype = {
 		window.onkeydown = function (e) { self.keyDown(e); };
 		window.onkeyup = function (e) { self.keyUp(e); };
 		
+		this.initTargets();
+
 		this.startTime = Date.now();
 		
 		window.requestNextAnimationFrame(
@@ -139,8 +169,8 @@ Game.prototype = {
 		
 		// The first timestep (and occasionally later ones) are too large
 		// causing our processing to take too long (and run into the next
-    // frame).  We can clamp to a max of 4 frames to keep that from
-    // happening
+    	// frame).  We can clamp to a max of 4 frames to keep that from
+    	// happening
 		this.elapsedTime = Math.min(this.elapsedTime, 4 * TIME_STEP);
 		
 		// We want a fixed game loop of 1/60th a second, so if necessary run multiple
