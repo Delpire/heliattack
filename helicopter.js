@@ -8,7 +8,7 @@ var Helicopter = function(game, x, y) {
   	this.velocity = 1;
 	this.health = 100;
   	this.pitch_angle = 0;
-	this.turret_angle = 0;
+	this.turret_angle = Math.PI / 8;
 	this.animation_frame = 0;
 	this.number_of_frames = 0;
 	this.missiles = 3;
@@ -27,14 +27,12 @@ Helicopter.prototype = {
 		context.translate(this.x, this.y);
 		context.rotate(this.pitch_angle);
 		//Center at rotor.
-		//context.translate(-65, -4);
 		context.translate(-75, -20);
 		context.save();
-		context.translate(90, 35);
+		context.translate(71, 50);
 		context.rotate(this.turret_angle);
-		//context.drawImage(this.sprite_sheet, 100, 56, 25, 8, -5, 0, 25, 8);
+		context.drawImage(this.sprite_sheet, 330, 77, 21, 20, 0, 0, 21, 20);
 		context.restore();
-		//context.drawImage(this.sprite_sheet, 0, 0, 131, 52, 0, 0, 131, 52);
 		context.drawImage(this.sprite_sheet, 128 * this.animation_frame, 0, 125, 65, 0, 0, 125, 65);
 		context.translate(56, 35);
 		for(i = 0; i < this.missiles; i++) {
@@ -85,19 +83,46 @@ Helicopter.prototype = {
 		} else {
 			this.pitch_angle = 0;
 		}
+
+		if(this.game.mouse_x >= this.x && this.game.mouse_y >= this.y){
+
+			this.turret_angle = Math.atan((this.game.mouse_y - this.y) / (this.game.mouse_x - this.x)) - .6;
+		}
+
 	},
 
 	fireMissile: function(mouse_x, mouse_y, inputState){
 
+		// If the player is moving forward, then the missile needs to start at
+		// a different location to account for the tilted barrel.
 		if(inputState.right){
-			return missile = new Missile(this.x + 25, this.y + 25, mouse_x, mouse_y);
+			return missile = new Missile(this.x - 25, this.y + 25, mouse_x, mouse_y);
 		}
 
+		// If the player is moving backward, then the missile needs to start at
+		// a different location to account for the tilted barrel.
 		if(inputState.left){
-			return missile = new Missile(this.x + 25, this.y, mouse_x, mouse_y);
+			return missile = new Missile(this.x - 25, this.y + 25, mouse_x, mouse_y);
 		}
 		
-		return missile = new Missile(this.x + 25, this.y + 11, mouse_x, mouse_y);
+		return missile = new Missile(this.x, this.y + 30, mouse_x, mouse_y);
 		
+	},
+
+	fireBullet: function(inputState){
+
+		// If the player is moving forward, then the bullet needs to start at
+		// a different location to account for the tilted barrel.
+		if(inputState.right){
+			return new Bullet(this.x + 25, this.y + 30);
+		}
+
+		// If the player is moving backward, then the bullet needs to start at
+		// a different location to account for the tilted barrel.
+		if(inputState.left){
+			return new Bullet(this.x + 25, this.y + 3);
+		}
+		
+		return new Bullet(this.x + 25, this.y + 16);
 	}
 };

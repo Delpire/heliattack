@@ -41,8 +41,14 @@ var Game = function (canvasId) {
   	this.fps = 0;
   	this.STARTING_FPS = 60;
 
+  	this.lives = 3;
+  	this.health = 100;
+  	this.num_missiles = 5;
+  	this.score = 0;
+
   	this.targets = [];
   	this.missiles = [];
+  	this.bullets = [];
 	
 	this.mouse_x;
 	this.mouse_y;
@@ -57,6 +63,14 @@ Game.prototype = {
 		
 		this.heli.update(elapsedTime, this.inputState);
 		
+		for(var i = 0; i < this.bullets.length; i++){
+			this.bullets[i].update();
+
+			if(this.bullets[i].x > 800){
+				this.bullets.splice(i, 1);
+			}
+		}
+
 		// For each missle, update the position. If it explodes,
 		// check to see if there are any targets near it.
 		for(var i = 0; i < this.missiles.length; i++){
@@ -87,6 +101,7 @@ Game.prototype = {
 
 				if(!this.targets[i].update()){
 					this.targets.splice(i, 1);
+					this.score += 10;
 				}
 
 				for(var j = 0; j < this.missiles.length; j++){
@@ -96,11 +111,23 @@ Game.prototype = {
 					}
 
 					// Check collision between missile and balloon.
-					if(this.targets[i].checkCollision(
+					this.targets[i].checkCollision(
 						this.missiles[j].x + (24 * Math.cos(this.missiles[j].angle)), 
-						this.missiles[j].y + (24 * Math.sin(this.missiles[j].angle)), this.background.back_x)){
-						//this.missiles.splice(j,1);
+						this.missiles[j].y + (24 * Math.sin(this.missiles[j].angle)), this.background.back_x);
+
+				}
+
+				for(var j = 0; j < this.bullets.length; j++){
+
+					if(this.targets.length == 0){
+						break;
 					}
+
+					// Check collision between missile and balloon.
+					if(this.targets[i].checkCollision(this.bullets[j].x, this.bullets[j].y, this.background.back_x)){
+						this.bullets.splice(j, 1);
+					}
+
 				}
 
 			}
@@ -120,6 +147,10 @@ Game.prototype = {
 		
 		for(var i = 0; i < this.missiles.length; i++){
 			this.missiles[i].render(this.backBufferContext);	
+		}
+
+		for(var i = 0; i < this.bullets.length; i++){
+			this.bullets[i].render(this.backBufferContext);
 		}
 
 		// Render game objects
@@ -190,10 +221,16 @@ Game.prototype = {
 
 		switch(e.button){
 			case 0:
+				this.bullets.push(this.heli.fireBullet(this.inputState));
 				break;
 			case 2:
-				if(e.clientX - this.canvasRect.left > this.heli.x + 45)
-					this.missiles.push(this.heli.fireMissile(e.clientX - this.canvasRect.left, e.clientY - this.canvasRect.top, this.inputState));
+				
+				if(e.clientX - this.canvasRect.left > this.heli.x){
+					if(this.num_missiles > 0){
+						this.missiles.push(this.heli.fireMissile(e.clientX - this.canvasRect.left, e.clientY - this.canvasRect.top, this.inputState));
+						this.num_missiles--;
+					}
+				}
 				break;
 		}
 
@@ -227,9 +264,7 @@ Game.prototype = {
 		window.oncontextmenu = function () { return false; }
 		window.onmousedown = function (e) { self.onemousedown(e);};
 		window.onmousemove = function (e) { self.mouse_x = e.clientX - self.canvasRect.left; self.mouse_y = e.clientY - self.canvasRect.top;};
-		//window.onmouseup = function (e) { self.mouseUp(e);};
-		
-		
+	
 		this.initTargets();
 
 		this.startTime = Date.now();

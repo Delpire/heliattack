@@ -4,33 +4,42 @@
 
 #game {
 	position: absolute;
-  border: solid 1px black;
-  position: relative;
-  width: 800px;
-  height: 480px;
+  	border: solid 1px black;
+  	position: relative;
+  	width: 800px;
+  	height: 480px;
+}
+
+#minimap {
+	position: absolute;
+  	border: solid 1px black;
+  	position: relative;
+  	width: 800px;
+  	height: 100px;
 }
 
 #gui-top-left {
 	position:absolute;
-	top: 0px;
-	left: 0px;
+	top: 5px;
+	left: 5px;
 }
 
 #gui-top-center{
 	position:absolute;
-	top: 0px;
+	top: 5px;
+	left: 375px;
 }
 
 #gui-top-right {
 	position:absolute;
-	top: 0px;
-	right: 0px;
+	top: 5px;
+	left: 730px;
 }
 
 #gui-bottom-left {
 	position:absolute;
-	bottom: 0px;
-	left: 0px;
+	bottom: 5px;
+	left: 5px;
 }
 
 #gui-bottom-center{
