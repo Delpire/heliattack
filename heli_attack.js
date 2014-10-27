@@ -12,6 +12,7 @@ var Game = function (canvasId) {
   
  	 // Rendering variables
   	this.screen = document.getElementById(canvasId);
+  	this.canvasRect = this.screen.getBoundingClientRect();
   	this.screenContext = this.screen.getContext('2d');
   	this.backBuffer = document.createElement('canvas');
   	this.backBuffer.width = this.screen.width;
@@ -41,6 +42,7 @@ var Game = function (canvasId) {
   	this.STARTING_FPS = 60;
 
   	this.targets = [];
+  	this.missiles = [];
 	
 }
 	
@@ -53,9 +55,35 @@ Game.prototype = {
 		
 		this.heli.update(elapsedTime, this.inputState);
 		
-		for(var i = 0; i < this.targets.length; i++){
-			this.targets[i].update();	
+		for(var i = 0; i < this.missiles.length; i++){
+			this.missiles[i].update();
+
+			if(this.missiles[i].x > 800){
+				this.missiles.splice(i,1);
+			}
 		}
+
+		for(var i = 0; i < this.targets.length; i++){
+
+			if(this.targets[i].x >= this.background.back_x && this.targets[i].x <= this.background.back_x + 800){
+
+				if(!this.targets[i].update()){
+					this.targets.splice(i, 1);
+				}
+
+				for(var j = 0; j < this.missiles.length; j++){
+					// Check collision between missile and balloon.
+					if(this.targets[i].checkCollision(
+						this.missiles[j].x + (24 * Math.cos(this.missiles[j].angle)), 
+						this.missiles[j].y + (24 * Math.sin(this.missiles[j].angle)), this.background.back_x)){
+						this.missiles.splice(j,1);
+					}
+				}
+
+			}
+		}
+
+
 				
 	},
 	
@@ -67,13 +95,17 @@ Game.prototype = {
 		
 		this.background.render(this.backBufferContext)
 		
+		for(var i = 0; i < this.missiles.length; i++){
+			this.missiles[i].render(this.backBufferContext);	
+		}
+
 		// Render game objects
 		this.heli.render(this.backBufferContext);
 
 		for(var i = 0; i < this.targets.length; i++){
 			this.targets[i].render(this.backBufferContext, this.background.back_x);	
 		}
-		
+
 		// Render GUI
 		this.gui.render();
 		
@@ -119,6 +151,23 @@ Game.prototype = {
 		}
 	},
 
+	onemousedown: function(e)
+	{
+		e.preventDefault();
+
+		switch(e.button){
+			case 0:
+				break;
+			case 2:
+				if(e.clientX - this.canvasRect.left > this.heli.x + 45)
+					this.missiles.push(this.heli.fireMissile(e.clientX - this.canvasRect.left, e.clientY - this.canvasRect.top, this.inputState));
+				break;
+		}
+
+		return false;
+
+	},
+
 	initTargets: function(){
 
 		for(var i = 0; i < 10; i++){
@@ -142,6 +191,10 @@ Game.prototype = {
     
 		window.onkeydown = function (e) { self.keyDown(e); };
 		window.onkeyup = function (e) { self.keyUp(e); };
+		window.oncontextmenu = function () { return false; }
+		window.onmousedown = function (e) { self.onemousedown(e);};
+		//window.onmouseup = function (e) { self.mouseUp(e);};
+		
 		
 		this.initTargets();
 

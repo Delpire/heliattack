@@ -2,12 +2,12 @@
 // Helicopter class
 //----------------------------------
 var Helicopter = function(game, x, y) {
-  this.game = game;
-  this.x = x;
+  	this.game = game;
+ 	this.x = x;
 	this.y = y;
-  this.velocity = 1;
+  	this.velocity = 1;
 	this.health = 100;
-  this.pitch_angle = 0;
+  	this.pitch_angle = 0;
 	this.turret_angle = 0;
 	this.animation_frame = 0;
 	this.number_of_frames = 0;
@@ -85,5 +85,19 @@ Helicopter.prototype = {
 		} else {
 			this.pitch_angle = 0;
 		}
+	},
+
+	fireMissile: function(mouse_x, mouse_y, inputState){
+
+		if(inputState.right){
+			return missile = new Missile(this.x + 25, this.y + 25, mouse_x, mouse_y);
+		}
+
+		if(inputState.left){
+			return missile = new Missile(this.x + 25, this.y, mouse_x, mouse_y);
+		}
+		
+		return missile = new Missile(this.x + 25, this.y + 11, mouse_x, mouse_y);
+		
 	}
 };
