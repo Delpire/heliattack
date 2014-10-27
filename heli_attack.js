@@ -44,6 +44,8 @@ var Game = function (canvasId) {
   	this.targets = [];
   	this.missiles = [];
 	
+	this.mouse_x;
+	this.mouse_y;
 }
 	
 Game.prototype = {
@@ -55,10 +57,26 @@ Game.prototype = {
 		
 		this.heli.update(elapsedTime, this.inputState);
 		
+		// For each missle, update the position. If it explodes,
+		// check to see if there are any targets near it.
 		for(var i = 0; i < this.missiles.length; i++){
-			this.missiles[i].update();
+			
+			if(this.missiles[i].update()){
 
-			if(this.missiles[i].x > 800){
+				for(var j = 0; j < this.targets.length; j++){
+
+					// If the target is on the screen, then it can be hit. 
+					if(this.targets[j].x >= this.background.back_x && this.targets[j].x <= this.background.back_x + 800){
+
+						if(((this.missiles[i].x + 30) - (this.targets[j].x - this.background.back_x + 14)) * ((this.missiles[i].x + 30) - (this.targets[j].x - this.background.back_x + 14))
+						 + ((this.missiles[i].y + 15) - (this.targets[j].y + 15)) * ((this.missiles[i].y + 15) - (this.targets[j].y + 15)) <= 1200 * 4){
+							this.targets[j].exploding = true;
+							this.targets[j].number_of_frames = 0;
+						}
+					}
+
+				}
+
 				this.missiles.splice(i,1);
 			}
 		}
@@ -72,11 +90,16 @@ Game.prototype = {
 				}
 
 				for(var j = 0; j < this.missiles.length; j++){
+
+					if(this.targets.length == 0){
+						break;
+					}
+
 					// Check collision between missile and balloon.
 					if(this.targets[i].checkCollision(
 						this.missiles[j].x + (24 * Math.cos(this.missiles[j].angle)), 
 						this.missiles[j].y + (24 * Math.sin(this.missiles[j].angle)), this.background.back_x)){
-						this.missiles.splice(j,1);
+						//this.missiles.splice(j,1);
 					}
 				}
 
@@ -106,11 +129,21 @@ Game.prototype = {
 			this.targets[i].render(this.backBufferContext, this.background.back_x);	
 		}
 
+		// Draw Reticule.
+		this.renderReticule();
+
 		// Render GUI
 		this.gui.render();
 		
 		// Flip buffers
 		this.screenContext.drawImage(this.backBuffer, 0, 0);
+	},
+
+	renderReticule: function(){
+		this.backBufferContext.save();
+		this.backBufferContext.translate(-11, -9);
+		this.backBufferContext.drawImage(this.heli.sprite_sheet, 14, 70, 22, 19, this.mouse_x, this.mouse_y, 22, 19);
+		this.backBufferContext.restore();
 	},
 	
 	keyDown: function(e)
@@ -193,6 +226,7 @@ Game.prototype = {
 		window.onkeyup = function (e) { self.keyUp(e); };
 		window.oncontextmenu = function () { return false; }
 		window.onmousedown = function (e) { self.onemousedown(e);};
+		window.onmousemove = function (e) { self.mouse_x = e.clientX - self.canvasRect.left; self.mouse_y = e.clientY - self.canvasRect.top;};
 		//window.onmouseup = function (e) { self.mouseUp(e);};
 		
 		
