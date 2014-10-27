@@ -18,6 +18,22 @@
   	height: 100px;
 }
 
+#gameBy {
+	position: absolute;
+  	position: relative;
+  	font-size: 150%;
+  	width: 800px;
+  	height: 30px;
+}
+
+#artBy {
+	position: absolute;
+  	position: relative;
+  	font-size: 150%;
+  	width: 800px;
+  	height: 30px;
+}
+
 #gui-top-left {
 	position:absolute;
 	top: 5px;
