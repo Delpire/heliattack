@@ -9,9 +9,11 @@ var Helicopter = function(game, x, y) {
 	this.health = 100;
   this.pitch_angle = 0;
 	this.turret_angle = 0;
+	this.animation_frame = 0;
+	this.number_of_frames = 0;
 	this.missiles = 3;
 	this.sprite_sheet = new Image();
-	this.sprite_sheet.src = "helicopter.png";
+	this.sprite_sheet.src = "helicopter_sheet.png";
 };
 
 Helicopter.prototype = {
@@ -24,13 +26,16 @@ Helicopter.prototype = {
 		context.save();
 		context.translate(this.x, this.y);
 		context.rotate(this.pitch_angle);
-		context.translate(-65, -4);
+		//Center at rotor.
+		//context.translate(-65, -4);
+		context.translate(-75, -20);
 		context.save();
 		context.translate(90, 35);
 		context.rotate(this.turret_angle);
-		context.drawImage(this.sprite_sheet, 100, 56, 25, 8, -5, 0, 25, 8);
+		//context.drawImage(this.sprite_sheet, 100, 56, 25, 8, -5, 0, 25, 8);
 		context.restore();
-		context.drawImage(this.sprite_sheet, 0, 0, 131, 52, 0, 0, 131, 52);
+		//context.drawImage(this.sprite_sheet, 0, 0, 131, 52, 0, 0, 131, 52);
+		context.drawImage(this.sprite_sheet, 128 * this.animation_frame, 0, 125, 65, 0, 0, 125, 65);
 		context.translate(56, 35);
 		for(i = 0; i < this.missiles; i++) {
 			context.translate(2,2);
@@ -43,6 +48,13 @@ Helicopter.prototype = {
 	  
 		// Move the helicopter
 		this.move(inputState);
+		
+		this.number_of_frames++;
+		
+		if(this.number_of_frames == 2){
+		  this.animation_frame = (this.animation_frame + 1) % 4;
+		  this.number_of_frames = 0;
+		}
 		
 		// TODO: Fire weapons
 	
