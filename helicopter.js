@@ -3,17 +3,15 @@
 //----------------------------------
 var Helicopter = function(game, x, y) {
   	this.game = game;
- 	this.x = x;
-	this.y = y;
+ 	  this.x = x;
+	  this.y = y;
   	this.velocity = 1;
-	this.health = 100;
+	  this.health = 100;
   	this.pitch_angle = 0;
-	this.turret_angle = Math.PI / 8;
-	this.animation_frame = 0;
-	this.number_of_frames = 0;
-	this.missiles = 3;
-	this.sprite_sheet = new Image();
-	this.sprite_sheet.src = "helicopter_sheet.png";
+	  this.turret_angle = Math.PI / 8;
+	  this.animation_frame = 0;
+	  this.number_of_frames = 0;
+	  this.missiles = 3;
 };
 
 Helicopter.prototype = {
@@ -24,20 +22,20 @@ Helicopter.prototype = {
 	render: function(context) {
 		// Render helicopter with pitch angle, missiles, and targeted turret
 		context.save();
-		context.translate(this.x, this.y);
+		context.translate(this.x - this.game.background.back_x, this.y);
 		context.rotate(this.pitch_angle);
 		//Center at rotor.
 		context.translate(-75, -20);
 		context.save();
 		context.translate(71, 50);
 		context.rotate(this.turret_angle);
-		context.drawImage(this.sprite_sheet, 330, 77, 21, 20, 0, 0, 21, 20);
+		context.drawImage(Resource.Image.helicopter_spritesheet, 330, 77, 21, 20, 0, 0, 21, 20);
 		context.restore();
-		context.drawImage(this.sprite_sheet, 128 * this.animation_frame, 0, 125, 65, 0, 0, 125, 65);
+		context.drawImage(Resource.Image.helicopter_spritesheet, 128 * this.animation_frame, 0, 125, 65, 0, 0, 125, 65);
 		context.translate(56, 35);
 		for(i = 0; i < this.missiles; i++) {
 			context.translate(2,2);
-		  context.drawImage(this.sprite_sheet, 75, 56, 17, 8, 0, 0, 17, 8);
+		  context.drawImage(Resource.Image.helicopter_spritesheet, 75, 56, 17, 8, 0, 0, 17, 8);
 		}
 		context.restore();
 	},
@@ -70,12 +68,13 @@ Helicopter.prototype = {
 		} else if(inputState.right) {
 		  
 			this.pitch_angle = Math.PI/8;
+			this.x += this.velocity * 5;
 			//Rubber banding
-			if(this.x <= 200 ||this.game.background.back_x >= 2200){
-			 this.x += this.velocity * 5;
+			if(this.x - this.game.background.back_x <= 200 ||this.game.background.back_x >= LEVEL_LENGTH[this.game.level] - 800){
+			 
 			}
 		  else{
-		    if(this.game.background.back_x < 2200)
+		    if(this.game.background.back_x < LEVEL_LENGTH[this.game.level] - 800)
 		    {
 		      this.game.background.update();
 		    }
@@ -96,16 +95,16 @@ Helicopter.prototype = {
 		// If the player is moving forward, then the missile needs to start at
 		// a different location to account for the tilted barrel.
 		if(inputState.right){
-			return missile = new Missile(this.x - 25, this.y + 25, mouse_x, mouse_y);
+			return missile = new Missile(this.x - 25 - this.game.background.back_x, this.y + 25, mouse_x, mouse_y);
 		}
 
 		// If the player is moving backward, then the missile needs to start at
 		// a different location to account for the tilted barrel.
 		if(inputState.left){
-			return missile = new Missile(this.x - 25, this.y + 25, mouse_x, mouse_y);
+			return missile = new Missile(this.x - 25 - this.game.background.back_x, this.y + 25, mouse_x, mouse_y);
 		}
 		
-		return missile = new Missile(this.x, this.y + 30, mouse_x, mouse_y);
+		return missile = new Missile(this.x - this.game.background.back_x, this.y + 30, mouse_x, mouse_y);
 		
 	},
 
@@ -124,5 +123,11 @@ Helicopter.prototype = {
 		}
 		
 		return new Bullet(this.x + 25, this.y + 16);
+	},
+	
+	nextLevel: function(){
+    this.x = 200;
+    this.y = 200;
+	  
 	}
 };

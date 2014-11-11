@@ -7,14 +7,12 @@ var Target = function(x, y, direction){
 	this.frame_index = 0;
 	this.moving_up = direction;
 	this.exploding = false;
-	this.sprite_sheet = new Image();
-	this.sprite_sheet.src = "balloon_sheet.png";
 }
 
 Target.prototype = {
 
 	render: function(context, world_x){
-		context.drawImage(this.sprite_sheet, this.frame_index * 30, 0, 30, 72, this.x - world_x, this.y, 30, 72);
+		context.drawImage(Resource.Image.balloon_spritesheet, this.frame_index * 30, 0, 30, 72, this.x - world_x, this.y, 30, 72);
 	},
 
 	update: function(){

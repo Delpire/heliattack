@@ -52,6 +52,8 @@ var Game = function (canvasId) {
 	
 	this.mouse_x;
 	this.mouse_y;
+	
+	this.level = 0;
 }
 	
 Game.prototype = {
@@ -62,6 +64,17 @@ Game.prototype = {
 		var self = this;
 		
 		this.heli.update(elapsedTime, this.inputState);
+		
+		if(this.heli.x >= LEVEL_LENGTH[this.level] + 75)
+		{
+		  
+		  //TODO: Add splash screen.
+		  
+		  //Load the next level.
+		  this.nextLevel();
+
+		  return;
+		}
 		
 		for(var i = 0; i < this.bullets.length; i++){
 			this.bullets[i].update();
@@ -79,7 +92,7 @@ Game.prototype = {
 
 				for(var j = 0; j < this.targets.length; j++){
 
-					// If the target is on the screen, then it can be hit. 
+					// If the target is on the screen, then it can be hit.
 					if(this.targets[j].x >= this.background.back_x && this.targets[j].x <= this.background.back_x + 800){
 
 						if(((this.missiles[i].x + 30) - (this.targets[j].x - this.background.back_x + 14)) * ((this.missiles[i].x + 30) - (this.targets[j].x - this.background.back_x + 14))
@@ -112,7 +125,7 @@ Game.prototype = {
 
 					// Check collision between missile and balloon.
 					this.targets[i].checkCollision(
-						this.missiles[j].x + (24 * Math.cos(this.missiles[j].angle)), 
+						this.missiles[j].x + (24 * Math.cos(this.missiles[j].angle)),
 						this.missiles[j].y + (24 * Math.sin(this.missiles[j].angle)), this.background.back_x);
 
 				}
@@ -146,7 +159,7 @@ Game.prototype = {
 		this.background.render(this.backBufferContext)
 		
 		for(var i = 0; i < this.missiles.length; i++){
-			this.missiles[i].render(this.backBufferContext);	
+			this.missiles[i].render(this.backBufferContext);
 		}
 
 		for(var i = 0; i < this.bullets.length; i++){
@@ -157,7 +170,7 @@ Game.prototype = {
 		this.heli.render(this.backBufferContext);
 
 		for(var i = 0; i < this.targets.length; i++){
-			this.targets[i].render(this.backBufferContext, this.background.back_x);	
+			this.targets[i].render(this.backBufferContext, this.background.back_x);
 		}
 
 		// Draw Reticule.
@@ -173,7 +186,7 @@ Game.prototype = {
 	renderReticule: function(){
 		this.backBufferContext.save();
 		this.backBufferContext.translate(-11, -9);
-		this.backBufferContext.drawImage(this.heli.sprite_sheet, 14, 70, 22, 19, this.mouse_x, this.mouse_y, 22, 19);
+		this.backBufferContext.drawImage(Resource.Image.helicopter_spritesheet, 14, 70, 22, 19, this.mouse_x, this.mouse_y, 22, 19);
 		this.backBufferContext.restore();
 	},
 	
@@ -225,7 +238,7 @@ Game.prototype = {
 				break;
 			case 2:
 				
-				if(e.clientX - this.canvasRect.left > this.heli.x){
+				if(e.clientX - this.canvasRect.left > this.heli.x - this.background.back_x){
 					if(this.num_missiles > 0){
 						this.missiles.push(this.heli.fireMissile(e.clientX - this.canvasRect.left, e.clientY - this.canvasRect.top, this.inputState));
 						this.num_missiles--;
@@ -236,6 +249,19 @@ Game.prototype = {
 
 		return false;
 
+	},
+	
+	nextLevel: function(){
+	  
+    this.level++;
+	  
+		this.targets = [];
+		this.missles = [];
+	  this.bullets = [];
+	  
+	  this.heli.nextLevel();
+	  this.background.nextLevel();
+	  
 	},
 
 	initTargets: function(){
@@ -249,7 +275,7 @@ Game.prototype = {
 			var y = Math.random() * (450 - 10) + 10;
 
 			// Randomly pick whether the balloon will begin by floating up, or floating down.
-			var direction = Math.random() < 0.5; 
+			var direction = Math.random() < 0.5;
 
 			this.targets.push(new Target(x, y, direction));
 		}
@@ -295,6 +321,8 @@ Game.prototype = {
     	// happening
 		this.elapsedTime = Math.min(this.elapsedTime, 4 * TIME_STEP);
 		
+		//console.log(this.elapsedTime);
+		
 		// We want a fixed game loop of 1/60th a second, so if necessary run multiple
 		// updates during each rendering pass
 		// Invariant: We have unprocessed time in excess of TIME_STEP
@@ -320,4 +348,11 @@ Game.prototype = {
 
 var game = new Game('game');
 console.log(game);
-game.start();
+function waitForLoad() {
+	if(Resource.loading === 0) {
+		game.start();
+	} else {
+		setTimeout(waitForLoad, 1000);
+	}
+};
+waitForLoad();
