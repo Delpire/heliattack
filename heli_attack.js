@@ -49,6 +49,7 @@ var Game = function (canvasId) {
   	this.targets = [];
   	this.missiles = [];
   	this.bullets = [];
+  	this.power_ups = [];
 	
 	this.mouse_x;
 	this.mouse_y;
@@ -259,20 +260,22 @@ Game.prototype = {
 		this.missles = [];
 	  this.bullets = [];
 	  
+	  this.initBalloons();
+	  
 	  this.heli.nextLevel();
 	  this.background.nextLevel();
 	  
 	},
 
-	initTargets: function(){
+	initBalloons: function(){
 
-		for(var i = 0; i < 10; i++){
+		for(var i = 0; i < 18 / (this.level + 1); i++){
 
 			// Pick random x locations for the balloons.
-			var x = (Math.random() * (800 - 200) + 200) + 220 * i;
+			var x = (Math.random() * (800 - 200) + 200 * (i + 1) * (this.level + 1) );
 
-			// Pick a y location between 10 and 450.
-			var y = Math.random() * (450 - 10) + 10;
+			// Pick a y location between 20 and 350.
+			var y = Math.random() * (350 - 10) + 20;
 
 			// Randomly pick whether the balloon will begin by floating up, or floating down.
 			var direction = Math.random() < 0.5;
@@ -291,7 +294,7 @@ Game.prototype = {
 		window.onmousedown = function (e) { self.onemousedown(e);};
 		window.onmousemove = function (e) { self.mouse_x = e.clientX - self.canvasRect.left; self.mouse_y = e.clientY - self.canvasRect.top;};
 	
-		this.initTargets();
+		this.initBalloons();
 
 		this.startTime = Date.now();
 		
