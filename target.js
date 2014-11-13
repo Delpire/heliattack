@@ -44,7 +44,6 @@ Target.prototype = {
 				this.frame_index++;
 
 				if(this.frame_index == 3){
-				  this.spawnPowerUp();
 					return false;
 				}
 
@@ -72,18 +71,4 @@ Target.prototype = {
 
 	},
 	
-	spawnPowerUp: function(){
-	  
-	  var upgradeIndex = Math.random() * 4 - 1;
-	  
-	  if(upgradeIndex == -1)
-	    return;
-	  
-	  var upgrade = new Upgrade(upgradeIndex, this.x, this.y);
-	  
-	  this.game.power_ups.push[upgrade];
-	}
-
-
-
 }

@@ -11,11 +11,11 @@ var Game = function (canvasId) {
 	var myself = this;
   
  	 // Rendering variables
-  	this.screen = document.getElementById(canvasId);
-  	this.canvasRect = this.screen.getBoundingClientRect();
-  	this.screenContext = this.screen.getContext('2d');
-  	this.backBuffer = document.createElement('canvas');
-  	this.backBuffer.width = this.screen.width;
+	this.screen = document.getElementById(canvasId);
+	this.canvasRect = this.screen.getBoundingClientRect();
+	this.screenContext = this.screen.getContext('2d');
+	this.backBuffer = document.createElement('canvas');
+	this.backBuffer.width = this.screen.width;
 	this.backBuffer.height = this.screen.height;
  	this.backBufferContext = this.backBuffer.getContext('2d');
 	
@@ -26,30 +26,33 @@ var Game = function (canvasId) {
 		right: false
 	};
 	
+	this.collision_system = new CollisionSystem();
+	
   	// Game variables
 	this.gui = new GUI(this);
-  	this.heli = new Helicopter(this, 200, 200);
-  	this.background = new Background(this, 0, 0);
+	this.heli = new Helicopter(this, 200, 200);
+	this.collision_system.add(this.heli, this.heli.x - this.heli.rightEdge, this.heli.x + this.heli.rightEdge);
+	this.background = new Background(this, 0, 0);
 	
 	// TODO: Add enemies
   
   	// Timing variables
-	this.elapsedTime = 0.0;
-  	this.startTime = 0;
-  	this.lastTime = 0;
-  	this.gameTime = 0;
-  	this.fps = 0;
-  	this.STARTING_FPS = 60;
+  this.elapsedTime = 0.0;
+	this.startTime = 0;
+	this.lastTime = 0;
+	this.gameTime = 0;
+	this.fps = 0;
+	this.STARTING_FPS = 60;
 
-  	this.lives = 3;
-  	this.health = 100;
-  	this.num_missiles = 5;
-  	this.score = 0;
+	this.lives = 3;
+	this.health = 100;
+	this.num_missiles = 5;
+	this.score = 0;
 
-  	this.targets = [];
-  	this.missiles = [];
-  	this.bullets = [];
-  	this.power_ups = [];
+	this.targets = [];
+	this.missiles = [];
+	this.bullets = [];
+	this.power_ups = [];
 	
 	this.mouse_x;
 	this.mouse_y;
@@ -65,6 +68,7 @@ Game.prototype = {
 		var self = this;
 		
 		this.heli.update(elapsedTime, this.inputState);
+		this.collision_system.update(this.heli.collision_index, this.heli.x - this.heli.rightEdge, this.heli.x + this.heli.rightEdge);
 		
 		if(this.heli.x >= LEVEL_LENGTH[this.level] + 75)
 		{
@@ -87,7 +91,7 @@ Game.prototype = {
 
 		// For each missle, update the position. If it explodes,
 		// check to see if there are any targets near it.
-		for(var i = 0; i < this.missiles.length; i++){
+		for(i = 0; i < this.missiles.length; i++){
 			
 			if(this.missiles[i].update()){
 
@@ -109,31 +113,32 @@ Game.prototype = {
 			}
 		}
 
-		for(var i = 0; i < this.targets.length; i++){
+		for(i = 0; i < this.targets.length; i++){
 
 			if(this.targets[i].x >= this.background.back_x && this.targets[i].x <= this.background.back_x + 800){
 
 				if(!this.targets[i].update()){
+				  this.spawnPowerUp(this.targets[i].x, this.targets[i].y);
 					this.targets.splice(i, 1);
 					this.score += 10;
 				}
 
-				for(var j = 0; j < this.missiles.length; j++){
+				for(j = 0; j < this.missiles.length; j++){
 
-					if(this.targets.length == 0){
+					if(this.targets.length === 0){
 						break;
 					}
 
 					// Check collision between missile and balloon.
 					this.targets[i].checkCollision(
-						this.missiles[j].x + (24 * Math.cos(this.missiles[j].angle)),
-						this.missiles[j].y + (24 * Math.sin(this.missiles[j].angle)), this.background.back_x);
+					this.missiles[j].x + (24 * Math.cos(this.missiles[j].angle)),
+					this.missiles[j].y + (24 * Math.sin(this.missiles[j].angle)), this.background.back_x);
 
 				}
 
-				for(var j = 0; j < this.bullets.length; j++){
+				for(j = 0; j < this.bullets.length; j++){
 
-					if(this.targets.length == 0){
+					if(this.targets.length === 0){
 						break;
 					}
 
@@ -146,9 +151,22 @@ Game.prototype = {
 
 			}
 		}
-
-
-				
+		
+		var collisions = this.collision_system.checkCollisions();
+		
+		for(i = 0; i < collisions.length; i++){
+		
+		    if(collisions[i][0].y - collisions[i][0].topEdge > collisions[i][1].y - collisions[i][1].topEdge &&
+		        collisions[i][0].y - collisions[i][0].topEdge < collisions[i][1].y + collisions[i][1].bottomEdge){
+		      console.log("Collision");
+		    }
+		    else if(collisions[i][0].y + collisions[i][0].bottomEdge > collisions[i][1].y - collisions[i][1].topEdge &&
+		            collisions[i][0].y + collisions[i][0].bottomEdge < collisions[i][1].y + collisions[i][1].bottomEdge){
+		      console.log("Collision");
+		    }
+		  
+		}
+		
 	},
 	
 	render: function(elapsedTime) {
@@ -163,15 +181,19 @@ Game.prototype = {
 			this.missiles[i].render(this.backBufferContext);
 		}
 
-		for(var i = 0; i < this.bullets.length; i++){
+		for(i = 0; i < this.bullets.length; i++){
 			this.bullets[i].render(this.backBufferContext);
 		}
 
 		// Render game objects
 		this.heli.render(this.backBufferContext);
 
-		for(var i = 0; i < this.targets.length; i++){
+		for(i = 0; i < this.targets.length; i++){
 			this.targets[i].render(this.backBufferContext, this.background.back_x);
+		}
+		
+		for(i = 0; i < this.power_ups.length; i++){
+		  this.power_ups[i].render(this.backBufferContext);
 		}
 
 		// Draw Reticule.
@@ -272,17 +294,30 @@ Game.prototype = {
 		for(var i = 0; i < 18 / (this.level + 1); i++){
 
 			// Pick random x locations for the balloons.
-			var x = (Math.random() * (800 - 200) + 200 * (i + 1) * (this.level + 1) );
+			var x = Math.floor((Math.random() * (800 - 200) + 200 * (i + 1) * (this.level + 1) ));
 
 			// Pick a y location between 20 and 350.
-			var y = Math.random() * (350 - 10) + 20;
+			var y = Math.floor(Math.random() * (350 - 10) + 20);
 
 			// Randomly pick whether the balloon will begin by floating up, or floating down.
 			var direction = Math.random() < 0.5;
 
-			this.targets.push(new Target(x, y, direction));
+			this.targets.push(new Target(x, y, direction, this));
 		}
 
+	},
+	
+	spawnPowerUp: function(x, y){
+	  
+	  var upgradeIndex = Math.floor((Math.random() * 4)) - 1;
+	  
+	  if(upgradeIndex == -1)
+	    return;
+
+    var upgrade = new Upgrade(upgradeIndex, x, y);
+	  
+	  this.power_ups.push(upgrade);
+	  this.collision_system.add(upgrade, x - upgrade.leftEdge, y + upgrade.rightEdge);
 	},
 	
 	start: function() {
@@ -357,5 +392,5 @@ function waitForLoad() {
 	} else {
 		setTimeout(waitForLoad, 1000);
 	}
-};
+}
 waitForLoad();

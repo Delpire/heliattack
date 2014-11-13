@@ -12,6 +12,13 @@ var Helicopter = function(game, x, y) {
 	  this.animation_frame = 0;
 	  this.number_of_frames = 0;
 	  this.missiles = 3;
+	  this.topEdge = 0;
+	  this.bottomEdge = 28;
+	  this.leftEdge = 76;
+	  this.rightEdge = 44;
+	  this.left_index;
+	  this.right_index;
+	  this.collision_index;
 };
 
 Helicopter.prototype = {
