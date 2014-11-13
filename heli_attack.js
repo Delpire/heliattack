@@ -31,7 +31,7 @@ var Game = function (canvasId) {
   	// Game variables
 	this.gui = new GUI(this);
 	this.heli = new Helicopter(this, 200, 200);
-	this.collision_system.add(this.heli, this.heli.x - this.heli.rightEdge, this.heli.x + this.heli.rightEdge);
+	this.collision_system.add(this.heli, this.heli.x - this.heli.rightEdge, this.heli.x + this.heli.leftEdge);
 	this.background = new Background(this, 0, 0);
 	
 	// TODO: Add enemies
@@ -158,14 +158,17 @@ Game.prototype = {
 		
 		    if(collisions[i][0].y - collisions[i][0].topEdge > collisions[i][1].y - collisions[i][1].topEdge &&
 		        collisions[i][0].y - collisions[i][0].topEdge < collisions[i][1].y + collisions[i][1].bottomEdge){
-		      console.log("Collision");
+		      this.collisionResult(collisions[i]);
+		      //console.log("Collision");
 		    }
 		    else if(collisions[i][0].y + collisions[i][0].bottomEdge > collisions[i][1].y - collisions[i][1].topEdge &&
 		            collisions[i][0].y + collisions[i][0].bottomEdge < collisions[i][1].y + collisions[i][1].bottomEdge){
-		      console.log("Collision");
+		      this.collisionResult(collisions[i]);
+		      //console.log("Collision");
 		    }
-		  
 		}
+
+		collisions = [];
 		
 	},
 	
@@ -309,7 +312,7 @@ Game.prototype = {
 	
 	spawnPowerUp: function(x, y){
 	  
-	  var upgradeIndex = Math.floor((Math.random() * 4)) - 1;
+	  var upgradeIndex = Math.floor((Math.random() * 5)) - 1;
 	  
 	  if(upgradeIndex == -1)
 	    return;
@@ -317,7 +320,17 @@ Game.prototype = {
     var upgrade = new Upgrade(upgradeIndex, x, y);
 	  
 	  this.power_ups.push(upgrade);
-	  this.collision_system.add(upgrade, x - upgrade.leftEdge, y + upgrade.rightEdge);
+	  this.collision_system.add(upgrade, x - upgrade.leftEdge, x + upgrade.rightEdge);
+	},
+
+	collisionResult: function(collision){
+
+		if(typeof(collision[0]) === 'Helicopter' && typeof(collision[1]) === 'Upgrade'){
+			console.log("woo");
+		}
+		else if(typeof(collision[0]) === 'Helicopter' && typeof(collision[1]) === 'Upgrade'){
+
+		}
 	},
 	
 	start: function() {

@@ -15,7 +15,7 @@ var Helicopter = function(game, x, y) {
 	  this.topEdge = 0;
 	  this.bottomEdge = 28;
 	  this.leftEdge = 76;
-	  this.rightEdge = 44;
+	  this.rightEdge = 37;
 	  this.left_index;
 	  this.right_index;
 	  this.collision_index;

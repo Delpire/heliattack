@@ -7,7 +7,7 @@ var CollisionSystem = function(){
 
   this.endpoint_view = new Uint16Array(this.collision_array);
 
-  this.index_view = new Uint8Array(this.collision_array);
+  this.index_view = new Uint16Array(this.collision_array, 2);
   
   this.next_array_index = 0;
   
@@ -24,15 +24,18 @@ CollisionSystem.prototype = {
     var collisions = [];
     //var collision = [];
     
-    for(var i = 0; i < this.next_object_index; i = i + 3){
+    for(var i = 0; i + 2 < this.next_object_index * 4; i = i + 2){
       
-      var j = i + 5;
+      var j = i + 2;
       
-      while(this.index_view[i + 2] != this.index_view[j]){
+      while(this.index_view[i] != this.index_view[j]){
         
-        collisions.push([i, j]);
+        collisions.push([this.collision_objects[this.index_view[i]], this.collision_objects[this.index_view[j]]]);
         
-        j = j + 3;
+        j = j + 2;
+
+        if(j >= this.next_object_index * 4)
+          break;
       }
     }
     
@@ -51,15 +54,15 @@ CollisionSystem.prototype = {
     this.collision_objects.push(object);
     
     this.endpoint_view[this.next_array_index] = left_endpoint;
-    this.index_view[this.next_array_index + 1] = this.next_object_index;
-    this.endpoint_view[this.next_array_index + 1] = right_endpoint;
+    this.index_view[this.next_array_index] = this.next_object_index;
+    this.endpoint_view[this.next_array_index + 2] = right_endpoint;
     this.index_view[this.next_array_index + 2] = this.next_object_index;
     
     object.left_index = this.next_array_index;
-    object.right_index = this.next_array_index + 1;
+    object.right_index = this.next_array_index + 2;
     object.collision_index = this.next_object_index;
     
-    this.next_array_index = this.next_array_index + 2;
+    this.next_array_index = this.next_array_index + 4;
     this.next_object_index++;
     
   },
@@ -83,19 +86,18 @@ CollisionSystem.prototype = {
 
       swapped = false;
 
-      for(var i = 0; i < this.next_object_index; i = i + 3){
-        
-        if(this.endpoint_view[i] < this.endpoint_view[i + 3]){
+      for(var i = 0; i + 2 < this.next_object_index * 4; i = i + 2){
+
+        if(this.endpoint_view[i] > this.endpoint_view[i + 2]){
           swapped = true;
           
           var temp = this.endpoint_view[i];
-          this.endpoint_view[i] = this.endpoint_view[i + 3];
-          this.endpoint_view[i + 3] = temp;
+          this.endpoint_view[i] = this.endpoint_view[i + 2];
+          this.endpoint_view[i + 2] = temp;
           
-          temp = this.index_view[i + 2];
-          this.index_view[i + 2] = this.index_view[i + 5];
-          this.index_view[i + 5] = temp;
-          
+          temp = this.index_view[i];
+          this.index_view[i] = this.index_view[i + 2];
+          this.index_view[i + 2] = temp;
         }
       }
     }
