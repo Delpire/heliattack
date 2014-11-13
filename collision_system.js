@@ -28,9 +28,10 @@ CollisionSystem.prototype = {
       
       var j = i + 2;
       
-      while(this.index_view[i] != this.index_view[j]){
+      while(this.index_view[i] != this.index_view[j] && this.collision_objects[this.index_view[i]].left_index == i){
         
-        collisions.push([this.collision_objects[this.index_view[i]], this.collision_objects[this.index_view[j]]]);
+        if(!this.hasElement(collisions, [this.collision_objects[this.index_view[j]], this.collision_objects[this.index_view[i]]]))
+          collisions.push([this.collision_objects[this.index_view[i]], this.collision_objects[this.index_view[j]]]);
         
         j = j + 2;
 
@@ -69,12 +70,17 @@ CollisionSystem.prototype = {
   
   remove: function(array_index){
     
-    this.endpoint_view[this.collision_objects[array_index].left_index] = null;
-    this.index_view[this.collision_objects[array_index].left_index + 2] = null;
-    this.endpoint_view[this.collision_objects[array_index].right_index] = null;
-    this.index_view[this.collision_objects[array_index].right_index + 2] = null;
+    this.endpoint_view[this.collision_objects[array_index].left_index] = 9999;
+    this.index_view[this.collision_objects[array_index].left_index] = 9999;
+    this.endpoint_view[this.collision_objects[array_index].right_index] = 9999;
+    this.index_view[this.collision_objects[array_index].right_index] = 9999;
     
     this.collision_objects.splice(array_index, 1);
+    
+    this.sort();
+    
+    this.next_object_index--;
+    this.next_array_index = this.next_array_index - 4;
     
   },
   
@@ -91,6 +97,24 @@ CollisionSystem.prototype = {
         if(this.endpoint_view[i] > this.endpoint_view[i + 2]){
           swapped = true;
           
+          if(this.index_view[i] != 9999){
+            if(this.endpoint_view[this.collision_objects[this.index_view[i]].left_index] == this.endpoint_view[i]){
+              this.collision_objects[this.index_view[i]].left_index = i + 2;
+            }
+            else{
+              this.collision_objects[this.index_view[i]].right_index = i + 2;
+            }
+          }
+          
+          if(this.index_view[i+2] != 9999){
+            if(this.endpoint_view[this.collision_objects[this.index_view[i + 2]].left_index] == this.endpoint_view[i + 2]){
+              this.collision_objects[this.index_view[i + 2]].left_index = i;
+            }
+            else{
+              this.collision_objects[this.index_view[i + 2]].right_index = i;
+            }
+          }
+          
           var temp = this.endpoint_view[i];
           this.endpoint_view[i] = this.endpoint_view[i + 2];
           this.endpoint_view[i + 2] = temp;
@@ -101,6 +125,17 @@ CollisionSystem.prototype = {
         }
       }
     }
+  },
+  
+  hasElement: function (array, element) {
+    
+    for (var i = 0; i < array.length; i++) {
+      
+        if (array[i][0] == element[0] && array[i][1] == element[1]) {
+            return true;
+        }
+    }
+    return false;
   }
 
 }

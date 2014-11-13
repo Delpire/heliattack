@@ -44,15 +44,12 @@ var Game = function (canvasId) {
 	this.fps = 0;
 	this.STARTING_FPS = 60;
 
-	this.lives = 3;
-	this.health = 100;
-	this.num_missiles = 5;
-	this.score = 0;
-
 	this.targets = [];
 	this.missiles = [];
 	this.bullets = [];
 	this.power_ups = [];
+	
+	this.score = 0;
 	
 	this.mouse_x;
 	this.mouse_y;
@@ -158,13 +155,11 @@ Game.prototype = {
 		
 		    if(collisions[i][0].y - collisions[i][0].topEdge > collisions[i][1].y - collisions[i][1].topEdge &&
 		        collisions[i][0].y - collisions[i][0].topEdge < collisions[i][1].y + collisions[i][1].bottomEdge){
-		      this.collisionResult(collisions[i]);
-		      //console.log("Collision");
+		      collisions[i][0].collide(collisions[i][1]);
 		    }
 		    else if(collisions[i][0].y + collisions[i][0].bottomEdge > collisions[i][1].y - collisions[i][1].topEdge &&
 		            collisions[i][0].y + collisions[i][0].bottomEdge < collisions[i][1].y + collisions[i][1].bottomEdge){
-		      this.collisionResult(collisions[i]);
-		      //console.log("Collision");
+		      collisions[i][1].collide(collisions[i][0]);
 		    }
 		}
 
@@ -265,9 +260,9 @@ Game.prototype = {
 			case 2:
 				
 				if(e.clientX - this.canvasRect.left > this.heli.x - this.background.back_x){
-					if(this.num_missiles > 0){
+					if(this.heli.missiles > 0){
 						this.missiles.push(this.heli.fireMissile(e.clientX - this.canvasRect.left, e.clientY - this.canvasRect.top, this.inputState));
-						this.num_missiles--;
+						this.heli.missiles--;
 					}
 				}
 				break;
@@ -321,16 +316,6 @@ Game.prototype = {
 	  
 	  this.power_ups.push(upgrade);
 	  this.collision_system.add(upgrade, x - upgrade.leftEdge, x + upgrade.rightEdge);
-	},
-
-	collisionResult: function(collision){
-
-		if(typeof(collision[0]) === 'Helicopter' && typeof(collision[1]) === 'Upgrade'){
-			console.log("woo");
-		}
-		else if(typeof(collision[0]) === 'Helicopter' && typeof(collision[1]) === 'Upgrade'){
-
-		}
 	},
 	
 	start: function() {

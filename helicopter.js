@@ -2,6 +2,7 @@
 // Helicopter class
 //----------------------------------
 var Helicopter = function(game, x, y) {
+  	this.type = 0;
   	this.game = game;
  	  this.x = x;
 	  this.y = y;
@@ -11,7 +12,8 @@ var Helicopter = function(game, x, y) {
 	  this.turret_angle = Math.PI / 8;
 	  this.animation_frame = 0;
 	  this.number_of_frames = 0;
-	  this.missiles = 3;
+	  this.missiles = 5;
+	  this.lives = 3;
 	  this.topEdge = 0;
 	  this.bottomEdge = 28;
 	  this.leftEdge = 76;
@@ -130,6 +132,39 @@ Helicopter.prototype = {
 		}
 		
 		return new Bullet(this.x + 25, this.y + 16);
+	},
+	
+	collide: function(object){
+	  
+	  switch(object.type){
+	    
+	    case 1:
+	      
+	      switch(object.upgrade){
+	        
+	        case 0:
+	          this.health += 10;
+	          break;
+          case 1:
+            this.missiles += 3;
+            break;
+          case 2:
+            this.lives++;
+            break;
+          case 3:
+            this.health -= 10;
+            break;
+	      }
+	      
+	      this.game.collision_system.remove(object.collision_index);
+	      this.game.power_ups.splice(object, 1);
+
+	      break;
+	    
+	    
+	  }
+	  
+	  
 	},
 	
 	nextLevel: function(){

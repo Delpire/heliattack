@@ -18,13 +18,13 @@ var GUI = function(game) {
 	this.render = function() {
 
 		// Render Health
-		this.bottomLeft.innerHTML = "Health: " + this.game.health + "%";
+		this.bottomLeft.innerHTML = "Health: " + this.game.heli.health + "%";
 
 		// Render Lives
-		this.topLeft.innerHTML = "Lives: " + this.game.lives;
+		this.topLeft.innerHTML = "Lives: " + this.game.heli.lives;
 
 		// Render Missiles
-		this.topCenter.innerHTML = "Missiles: " + this.game.num_missiles;
+		this.topCenter.innerHTML = "Missiles: " + this.game.heli.missiles;
 
 		// Render Score
 		this.topRight.innerHTML = "Score: " + this.game.score;

@@ -1,6 +1,6 @@
 
 var Upgrade = function(upgrade, x, y){
-
+  this.type = 1;
   this.x = x;
   this.y = y;
   this.upgrade = upgrade;
@@ -19,6 +19,10 @@ Upgrade.prototype = {
   render: function(context){
     
     context.drawImage(Resource.Image.upgrade_spritesheet, this.upgrade * 25, 0, 25, 25, this.x - game.background.back_x, this.y, 25, 25);
+  },
+  
+  collide: function(){
+    
   }
   
 };
