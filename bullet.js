@@ -1,9 +1,22 @@
 
-var Bullet = function(x, y){
+var Bullet = function(x, y, velocity, gameIndex, game){
+	
+	this.type = 2;
 	
 	this.x = x;
 	this.y = y;
+	this.velocity = velocity;
 	this.radius = 1;
+	this.game = game;
+	this.gameIndex = gameIndex;
+  this.topEdge = this.radius;
+  this.bottomEdge = this.radius;
+  this.leftEdge = this.radius;
+  this.rightEdge = this.radius + 10;
+  this.left_index;
+  this.right_index;
+  this.collision_index;
+	
 
 }
 
@@ -15,7 +28,7 @@ Bullet.prototype = {
 		context.strokeStyle = "#000000";
 		context.fillStyle = "#aaaaaa";
 		context.beginPath();
-		context.arc(this.x, this.y, this.radius, 0, 2*Math.PI, false);
+		context.arc(this.x - this.game.background.back_x, this.y, this.radius, 0, 2*Math.PI, false);
 		context.fill();
 		context.stroke();
 		context.restore();
@@ -23,7 +36,26 @@ Bullet.prototype = {
 	},
 
 	update: function(){
-		this.x += 5;
+		this.x += this.velocity;
+	},
+	
+	collide: function(object){
+	  
+	  switch(object.type){
+	    
+	    //Spawn power up and remove Balloon and Bullet.
+	    case 4:
+	      this.game.spawnPowerUp(object.x, object.y);
+
+	      this.game.collision_system.remove(this.collision_index);
+	      this.game.collision_system.remove(object.collision_index);
+	      this.game.removeObject(this.game.balloons, object.gameIndex);
+        this.game.removeObject(this.game.bullets, this.gameIndex);
+	      
+	      break;
+	    
+	  }
+	  
 	}
 
 }

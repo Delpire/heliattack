@@ -1,5 +1,5 @@
 
-var Upgrade = function(upgrade, x, y){
+var Upgrade = function(upgrade, x, y, gameIndex, game){
   this.type = 1;
   this.x = x;
   this.y = y;
@@ -11,6 +11,8 @@ var Upgrade = function(upgrade, x, y){
   this.left_index;
   this.right_index;
   this.collision_index;
+  this.game = game;
+  this.gameIndex = gameIndex;
 
 };
 
@@ -21,8 +23,35 @@ Upgrade.prototype = {
     context.drawImage(Resource.Image.upgrade_spritesheet, this.upgrade * 25, 0, 25, 25, this.x - game.background.back_x, this.y, 25, 25);
   },
   
-  collide: function(){
+  collide: function(object){
     
+    switch(object.type){
+	    
+	    case 0:
+	      
+	      switch(this.upgrade){
+	        
+	        case 0:
+	          object.health += 10;
+	          break;
+          case 1:
+            object.missiles += 3;
+            break;
+          case 2:
+            object.lives++;
+            break;
+          case 3:
+            object.health -= 10;
+            break;
+	      }
+	      
+	      this.game.collision_system.remove(this.collision_index);
+	      this.game.removeObject(this.game.power_ups, this.gameIndex);
+
+	      break;
+      case -1:
+        break;
+    }
   }
   
 };

@@ -1,5 +1,9 @@
 
-var Target = function(x, y, direction){
+var Balloon = function(x, y, direction, gameIndex, game){
+	this.type = 4;
+	this.gameIndex = gameIndex;
+	this.game = game;
+	
 	this.x = x;
 	this.y = y;
 	this.original_y = y;
@@ -7,9 +11,18 @@ var Target = function(x, y, direction){
 	this.frame_index = 0;
 	this.moving_up = direction;
 	this.exploding = false;
+	
+	// Collision Detals
+  this.topEdge = -4;
+  this.bottomEdge = 30;
+  this.leftEdge = -4;
+  this.rightEdge = 25;
+  this.left_index;
+  this.right_index;
+  this.collision_index;
 }
 
-Target.prototype = {
+Balloon.prototype = {
 
 	render: function(context, world_x){
 		context.drawImage(Resource.Image.balloon_spritesheet, this.frame_index * 30, 0, 30, 72, this.x - world_x, this.y, 30, 72);
@@ -70,5 +83,24 @@ Target.prototype = {
 		return false;
 
 	},
+	
+	collide: function(object){
+	  
+	  switch(object.type){
+	    
+	    //Spawn power up and remove Balloon and Bullet.
+	    case 2:
+	      this.game.spawnPowerUp(this.x, this.y);
+
+	      this.game.collision_system.remove(this.collision_index);
+	      this.game.collision_system.remove(object.collision_index);
+	      this.game.removeObject(this.game.bullets, object.gameIndex);
+        this.game.removeObject(this.game.balloons, this.gameIndex);
+	      
+	      break;
+	    
+	  }
+	  
+	}
 	
 }

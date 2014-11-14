@@ -44,7 +44,7 @@ var Game = function (canvasId) {
 	this.fps = 0;
 	this.STARTING_FPS = 60;
 
-	this.targets = [];
+	this.balloons = [];
 	this.missiles = [];
 	this.bullets = [];
 	this.power_ups = [];
@@ -65,7 +65,7 @@ Game.prototype = {
 		var self = this;
 		
 		this.heli.update(elapsedTime, this.inputState);
-		this.collision_system.update(this.heli.collision_index, this.heli.x - this.heli.rightEdge, this.heli.x + this.heli.rightEdge);
+		this.collision_system.update(this.heli.collision_index, this.heli.x - this.heli.leftEdge, this.heli.x + this.heli.rightEdge);
 		
 		if(this.heli.x >= LEVEL_LENGTH[this.level] + 75)
 		{
@@ -80,27 +80,30 @@ Game.prototype = {
 		
 		for(var i = 0; i < this.bullets.length; i++){
 			this.bullets[i].update();
-
-			if(this.bullets[i].x > 800){
-				this.bullets.splice(i, 1);
+			this.collision_system.update(this.bullets[i].collision_index, this.bullets[i].x - this.bullets[i].leftEdge,
+			                                  this.bullets[i].x + this.bullets[i].rightEdge);
+      
+			if(this.bullets[i].x > this.background.back_x + 800){
+			  this.collision_system.remove(this.bullets[i].collision_index);
+				this.removeObject(this.bullets, i);
 			}
 		}
 
 		// For each missle, update the position. If it explodes,
-		// check to see if there are any targets near it.
-		for(i = 0; i < this.missiles.length; i++){
+		// check to see if there are any balloons near it.
+		for(var i = 0; i < this.missiles.length; i++){
 			
 			if(this.missiles[i].update()){
 
-				for(var j = 0; j < this.targets.length; j++){
+				for(var j = 0; j < this.balloons.length; j++){
 
-					// If the target is on the screen, then it can be hit.
-					if(this.targets[j].x >= this.background.back_x && this.targets[j].x <= this.background.back_x + 800){
+					// If the Balloon is on the screen, then it can be hit.
+					if(this.balloons[j].x >= this.background.back_x && this.balloons[j].x <= this.background.back_x + 800){
 
-						if(((this.missiles[i].x + 30) - (this.targets[j].x - this.background.back_x + 14)) * ((this.missiles[i].x + 30) - (this.targets[j].x - this.background.back_x + 14))
-						 + ((this.missiles[i].y + 15) - (this.targets[j].y + 15)) * ((this.missiles[i].y + 15) - (this.targets[j].y + 15)) <= 1200 * 4){
-							this.targets[j].exploding = true;
-							this.targets[j].number_of_frames = 0;
+						if(((this.missiles[i].x + 30) - (this.balloons[j].x - this.background.back_x + 14)) * ((this.missiles[i].x + 30) - (this.balloons[j].x - this.background.back_x + 14))
+						 + ((this.missiles[i].y + 15) - (this.balloons[j].y + 15)) * ((this.missiles[i].y + 15) - (this.balloons[j].y + 15)) <= 1200 * 4){
+							this.balloons[j].exploding = true;
+							this.balloons[j].number_of_frames = 0;
 						}
 					}
 
@@ -110,48 +113,38 @@ Game.prototype = {
 			}
 		}
 
-		for(i = 0; i < this.targets.length; i++){
+		for(var i = 0; i < this.balloons.length; i++){
 
-			if(this.targets[i].x >= this.background.back_x && this.targets[i].x <= this.background.back_x + 800){
+			if(this.balloons[i].x >= this.background.back_x && this.balloons[i].x <= this.background.back_x + 800){
 
-				if(!this.targets[i].update()){
-				  this.spawnPowerUp(this.targets[i].x, this.targets[i].y);
-					this.targets.splice(i, 1);
+				if(!this.balloons[i].update()){
+				  this.spawnPowerUp(this.balloons[i].x, this.balloons[i].y);
+					this.balloons.splice(i, 1);
 					this.score += 10;
 				}
 
-				for(j = 0; j < this.missiles.length; j++){
+				for(var j = 0; j < this.missiles.length; j++){
 
-					if(this.targets.length === 0){
+					if(this.balloons.length === 0){
 						break;
 					}
 
 					// Check collision between missile and balloon.
-					this.targets[i].checkCollision(
+					this.balloons[i].checkCollision(
 					this.missiles[j].x + (24 * Math.cos(this.missiles[j].angle)),
 					this.missiles[j].y + (24 * Math.sin(this.missiles[j].angle)), this.background.back_x);
 
 				}
-
-				for(j = 0; j < this.bullets.length; j++){
-
-					if(this.targets.length === 0){
-						break;
-					}
-
-					// Check collision between missile and balloon.
-					if(this.targets[i].checkCollision(this.bullets[j].x, this.bullets[j].y, this.background.back_x)){
-						this.bullets.splice(j, 1);
-					}
-
-				}
-
 			}
 		}
 		
 		var collisions = this.collision_system.checkCollisions();
 		
-		for(i = 0; i < collisions.length; i++){
+		if(collisions.length == 2){
+		  console.log("two");
+		}
+		
+		for(var i = 0; i < collisions.length; i++){
 		
 		    if(collisions[i][0].y - collisions[i][0].topEdge > collisions[i][1].y - collisions[i][1].topEdge &&
 		        collisions[i][0].y - collisions[i][0].topEdge < collisions[i][1].y + collisions[i][1].bottomEdge){
@@ -159,7 +152,7 @@ Game.prototype = {
 		    }
 		    else if(collisions[i][0].y + collisions[i][0].bottomEdge > collisions[i][1].y - collisions[i][1].topEdge &&
 		            collisions[i][0].y + collisions[i][0].bottomEdge < collisions[i][1].y + collisions[i][1].bottomEdge){
-		      collisions[i][1].collide(collisions[i][0]);
+		      collisions[i][0].collide(collisions[i][1]);
 		    }
 		}
 
@@ -186,8 +179,8 @@ Game.prototype = {
 		// Render game objects
 		this.heli.render(this.backBufferContext);
 
-		for(i = 0; i < this.targets.length; i++){
-			this.targets[i].render(this.backBufferContext, this.background.back_x);
+		for(i = 0; i < this.balloons.length; i++){
+			this.balloons[i].render(this.backBufferContext, this.background.back_x);
 		}
 		
 		for(i = 0; i < this.power_ups.length; i++){
@@ -276,7 +269,7 @@ Game.prototype = {
 	  
     this.level++;
 	  
-		this.targets = [];
+		this.balloons = [];
 		this.missles = [];
 	  this.bullets = [];
 	  
@@ -300,7 +293,9 @@ Game.prototype = {
 			// Randomly pick whether the balloon will begin by floating up, or floating down.
 			var direction = Math.random() < 0.5;
 
-			this.targets.push(new Target(x, y, direction, this));
+      var balloon = new Balloon(x, y, direction, this.balloons.length, this);
+      this.collision_system.add(balloon, x - balloon.leftEdge, x + balloon.rightEdge);
+			this.balloons.push(balloon);
 		}
 
 	},
@@ -312,10 +307,20 @@ Game.prototype = {
 	  if(upgradeIndex == -1)
 	    return;
 
-    var upgrade = new Upgrade(upgradeIndex, x, y);
+    var upgrade = new Upgrade(upgradeIndex, x, y, this.power_ups.length, this);
 	  
 	  this.power_ups.push(upgrade);
 	  this.collision_system.add(upgrade, x - upgrade.leftEdge, x + upgrade.rightEdge);
+	},
+	
+	removeObject: function(array, index){
+	  
+	  for(var i = index + 1; i < array.length; i++){
+	    array[i].gameIndex--;
+	  }
+	  
+	  array.splice(index, 1);
+	  
 	},
 	
 	start: function() {

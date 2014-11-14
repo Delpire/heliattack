@@ -118,20 +118,29 @@ Helicopter.prototype = {
 	},
 
 	fireBullet: function(inputState){
-
+    
+    var bullet;
+    
 		// If the player is moving forward, then the bullet needs to start at
 		// a different location to account for the tilted barrel.
 		if(inputState.right){
-			return new Bullet(this.x + 25, this.y + 30);
+		  bullet = new Bullet(this.x + 25, this.y + 30, 10, this.game.bullets.length, this.game);
+		  this.game.collision_system.add(bullet, bullet.x - bullet.leftEdge, bullet.x + bullet.rightEdge);
+			return bullet;
 		}
 
 		// If the player is moving backward, then the bullet needs to start at
 		// a different location to account for the tilted barrel.
 		if(inputState.left){
-			return new Bullet(this.x + 25, this.y + 3);
+		  
+		  bullet = new Bullet(this.x + 25, this.y + 3, 10, this.game.bullets.length, this.game);
+		  this.game.collision_system.add(bullet, bullet.x - bullet.leftEdge, bullet.x + bullet.rightEdge);
+			return bullet;
 		}
-		
-		return new Bullet(this.x + 25, this.y + 16);
+	
+	  bullet = new Bullet(this.x + 25, this.y + 16, 10, this.game.bullets.length, this.game);
+	  this.game.collision_system.add(bullet, bullet.x - bullet.leftEdge, bullet.x + bullet.rightEdge);
+		return bullet;
 	},
 	
 	collide: function(object){
@@ -157,9 +166,11 @@ Helicopter.prototype = {
 	      }
 	      
 	      this.game.collision_system.remove(object.collision_index);
-	      this.game.power_ups.splice(object, 1);
+	      this.game.removeObject(this.game.power_ups, object.gameIndex);
 
 	      break;
+      case -1:
+        break;
 	    
 	    
 	  }
