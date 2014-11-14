@@ -74,6 +74,9 @@ Helicopter.prototype = {
 		if(inputState.left) {
 			this.pitch_angle = -Math.PI/10;
 			this.x -= this.velocity * 2;
+
+			if(this.x <= 55)
+				this.x += this.velocity * 2;
 		} else if(inputState.right) {
 		  
 			this.pitch_angle = Math.PI/8;

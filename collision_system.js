@@ -28,16 +28,19 @@ CollisionSystem.prototype = {
       
       var j = i + 2;
       
-      while(this.index_view[i] != this.index_view[j] && this.collision_objects[this.index_view[i]].left_index == i){
-        
-        if(!this.hasElement(collisions, [this.collision_objects[this.index_view[j]], this.collision_objects[this.index_view[i]]]) &&
-           !this.hasElement(collisions, [this.collision_objects[this.index_view[i]], this.collision_objects[this.index_view[j]]]))
-          collisions.push([this.collision_objects[this.index_view[i]], this.collision_objects[this.index_view[j]]]);
-        
-        j = j + 2;
+      if(this.index_view[i] != 9999 && this.index_view[i] < this.next_object_index){
+        while(this.index_view[i] != this.index_view[j] && this.collision_objects[this.index_view[i]].left_index == i){
+          
+          if(!this.hasElement(collisions, [this.collision_objects[this.index_view[j]], this.collision_objects[this.index_view[i]]]) &&
+             !this.hasElement(collisions, [this.collision_objects[this.index_view[i]], this.collision_objects[this.index_view[j]]]) &&
+             this.index_view[j] != 9999 && this.index_view[j] < this.next_object_index)
+            collisions.push([this.collision_objects[this.index_view[i]], this.collision_objects[this.index_view[j]]]);
+          
+          j = j + 2;
 
-        if(j >= this.next_object_index * 4)
-          break;
+          if(j >= this.next_object_index * 4)
+            break;
+        }
       }
     }
     
@@ -46,9 +49,13 @@ CollisionSystem.prototype = {
   },
 
   update: function(array_index, left_endpoint, right_endpoint){
-  
-    this.endpoint_view[this.collision_objects[array_index].left_index] = left_endpoint;
-    this.endpoint_view[this.collision_objects[array_index].right_index] = right_endpoint;
+
+      if(array_index >= this.next_object_index){
+        return;
+      }
+
+      this.endpoint_view[this.collision_objects[array_index].left_index] = left_endpoint;
+      this.endpoint_view[this.collision_objects[array_index].right_index] = right_endpoint;
   },
   
   add: function(object, left_endpoint, right_endpoint){
@@ -71,11 +78,15 @@ CollisionSystem.prototype = {
   
   remove: function(array_index){
     
+    if(array_index >= this.next_object_index){
+      return;
+    }
+
     this.endpoint_view[this.collision_objects[array_index].left_index] = 9999;
     this.index_view[this.collision_objects[array_index].left_index] = 9999;
     this.endpoint_view[this.collision_objects[array_index].right_index] = 9999;
     this.index_view[this.collision_objects[array_index].right_index] = 9999;
-    
+
     this.sort();
     
     this.collision_objects.splice(array_index, 1);
@@ -105,7 +116,7 @@ CollisionSystem.prototype = {
         if(this.endpoint_view[ind] > this.endpoint_view[ind + 2]){
           swapped = true;
           
-          if(this.index_view[ind] != 9999){
+          if(this.index_view[ind] != 9999 && this.index_view[ind] < this.next_object_index){
             if(this.collision_objects[this.index_view[ind]].left_index == ind){
               this.collision_objects[this.index_view[ind]].left_index = ind + 2;
             }
@@ -114,7 +125,7 @@ CollisionSystem.prototype = {
             }
           }
           
-          if(this.index_view[ind+2] != 9999){
+          if(this.index_view[ind+2] != 9999 && this.index_view[ind + 2] < this.next_object_index){
             if(this.collision_objects[this.index_view[ind + 2]].left_index == ind + 2){
               this.collision_objects[this.index_view[ind + 2]].left_index = ind;
             }

@@ -5,6 +5,9 @@ var HEIGHT = 480;
 // Fixed time step of 1/60th a second
 var TIME_STEP = 1000/60;
 
+var LEVEL_TWO_ENEMIES = [ [0, 1000], [1, 800], [2, 1200], [0, 2000], [1, 2250], [2, 2500], [1, 3000], [0, 4000], [2, 4000], [1, 4300], [1, 5000], [1, 5300], [0, 6300] ]
+var LEVEL_THREE_ENEMIES = [ [0, 1000], [0, 2000], [2, 2500], [1, 3000], [0, 4000], [2, 4000], [1, 4300], [1, 5000], [1, 5300], [0, 6300] ] 
+
 // Game class
 //----------------------------------
 var Game = function (canvasId) {
@@ -53,6 +56,7 @@ var Game = function (canvasId) {
 	this.enemy_helicopters = [];
 	this.turrets = [];
 	this.tanks = [];
+	this.boss = [];
 	
 	this.score = 0;
 	
@@ -135,6 +139,20 @@ Game.prototype = {
 										this.tanks[i].x + this.tanks[i].rightEdge);
 		}
 
+		var allDead = true;
+
+		for(var i = 0; i < this.boss.length; i++){
+			this.boss[i].update();
+
+			if(this.boss[i].health > 0){
+				allDead = false;
+			}
+		}
+
+		if(allDead){
+			this.boss = [];
+		}
+
 		var collisions = this.collision_system.checkCollisions();
 		
 		if(collisions.length == 2){
@@ -194,6 +212,10 @@ Game.prototype = {
 
 		for(i = 0; i < this.tanks.length; i++){
 			this.tanks[i].render(this.backBufferContext);
+		}
+
+		for(var i = 0; i < this.boss.length; i++){
+			this.boss[i].render(this.backBufferContext);
 		}
 
 		// Draw Reticule.
@@ -288,9 +310,108 @@ Game.prototype = {
 	
     this.transitionLevel();
 
+
+    for(var i = 0; i < this.balloons.length; i++){
+    	this.collision_system.remove(this.balloons[i].collision_index);
+    }
+    for(var i = 0; i < this.missiles.length; i++){
+    	this.collision_system.remove(this.missiles[i].collision_index);
+    }
+    for(var i = 0; i < this.bullets.length; i++){
+    	this.collision_system.remove(this.bullets[i].collision_index);
+    }
+    for(var i = 0; i < this.tanks.length; i++){
+    	this.collision_system.remove(this.tanks[i].collision_index);
+    }
+    for(var i = 0; i < this.turrets.length; i++){
+    	this.collision_system.remove(this.turrets[i].collision_index);
+    }
+    for(var i = 0; i < this.enemy_helicopters.length; i++){
+    	this.collision_system.remove(this.enemy_helicopters[i].collision_index);
+    }
+    for(var i = 0; i < this.power_ups.length; i++){
+    	this.collision_system.remove(this.power_ups[i].collision_index);
+    }
+
+    this.power_ups = [];
 	this.balloons = [];
 	this.missles = [];
 	this.bullets = [];
+	this.tanks = [];
+	this.turrets = [];
+	this.enemy_helicopters = [];
+
+	switch(this.level){
+
+		case 1:
+
+			for(var i = 0; i < LEVEL_TWO_ENEMIES.length; i++){
+
+				switch(LEVEL_TWO_ENEMIES[i][0]){
+					case 0:
+						var h = new EnemyHelicopter(LEVEL_TWO_ENEMIES[i][1], 240, this.enemy_helicopters.length, this);
+						this.collision_system.add(h, h.x - h.leftEdge, h.x + h.rightEdge);
+						this.enemy_helicopters.push(h);
+						break;
+					case 1:
+						var t = new Tank(LEVEL_TWO_ENEMIES[i][1], 436, this.tanks.length, this);
+						this.collision_system.add(t, t.x - t.leftEdge, t.x + t.rightEdge);
+						this.tanks.push(t);
+						break;
+					case 2:
+						var tur = new Turret(LEVEL_TWO_ENEMIES[i][1], 400, this.turrets.length, this);
+						this.collision_system.add(tur, tur.x - tur.leftEdge, tur.x + tur.rightEdge);
+						this.turrets.push(tur);
+						break;
+				}
+
+			}
+
+			break;
+		case 2:
+
+			for(var i = 0; i < LEVEL_THREE_ENEMIES.length; i++){
+
+				switch(LEVEL_THREE_ENEMIES[i][0]){
+					case 0:
+						var h = new EnemyHelicopter(LEVEL_THREE_ENEMIES[i][1], 240, this.enemy_helicopters.length, this);
+						this.collision_system.add(h, h.x - h.leftEdge, h.x + h.rightEdge);
+						this.enemy_helicopters.push(h);
+						break;
+					case 1:
+						var t = new Tank(LEVEL_THREE_ENEMIES[i][1], 436, this.tanks.length, this);
+						this.collision_system.add(t, t.x - t.leftEdge, t.x + t.rightEdge);
+						this.tanks.push(t);
+						break;
+					case 2:
+						var tur = new Turret(LEVEL_THREE_ENEMIES[i][1], 400, this.turrets.length, this);
+						this.collision_system.add(tur, tur.x - tur.leftEdge, tur.x + tur.rightEdge);
+						this.turrets.push(tur);
+						break;
+				}
+
+			}
+
+			var boss1 = new Boss(5927, 385, this.boss.length, this);
+			this.collision_system.add(boss1, boss1.x - boss1.leftEdge, boss1.x + boss1.rightEdge);
+			this.boss.push(boss1);
+
+			var boss2 = new Boss(5927, 290, this.boss.length, this);
+			this.collision_system.add(boss2, boss2.x - boss2.leftEdge, boss2.x + boss2.rightEdge);
+			this.boss.push(boss2);
+
+			var boss3 = new Boss(5927, 195, this.boss.length, this);
+			this.collision_system.add(boss3, boss3.x - boss3.leftEdge, boss3.x + boss3.rightEdge);
+			this.boss.push(boss3);
+
+			var boss4 = new Boss(5927, 100, this.boss.length, this);
+			this.collision_system.add(boss4, boss4.x - boss4.leftEdge, boss4.x + boss4.rightEdge);
+			this.boss.push(boss4);
+
+			break;
+	}
+
+
 
 	this.initBalloons();
 
@@ -301,22 +422,6 @@ Game.prototype = {
 	},
 
 	initBalloons: function(){
-
-		//REMOVE
-		//var h = new EnemyHelicopter(400, 240, this.enemy_helicopters.length, this);
-		//this.collision_system.add(h, h.x - h.leftEdge, h.x + h.rightEdge);
-		//this.enemy_helicopters.push(h);
-
-		//var t = new Turret(1500, 400, this.turrets.length, this);
-		//this.collision_system.add(t, t.x - t.leftEdge, t.x + t.rightEdge);
-		//this.turrets.push(t);
-
-		var t = new Tank(1500, 436, this.tanks.length, this);
-		this.collision_system.add(t, t.x - t.leftEdge, t.x + t.rightEdge);
-		this.tanks.push(t);
-
-		//REMOVE
-
 
 		for(var i = 0; i < 18 / (this.level + 1); i++){
 
@@ -410,7 +515,7 @@ Game.prototype = {
 		this.screenContext.fillText("The End!", 250, 1250 - this.creditsOffset);
 		this.screenContext.fillText("Special Thanks:", 250, 1500 - this.creditsOffset);
 		this.screenContext.fillText("Sean Meier", 300, 1550 - this.creditsOffset);
-		this.screenContext.fillText("for distractions...", 200, 2000 - this.creditsOffset);
+		this.screenContext.fillText("(╯°□°）╯︵ ┻━┻", 200, 2000 - this.creditsOffset);
 
 		if(this.creditsOffset < 2500){
 			this.creditsOffset = this.creditsOffset + 2;

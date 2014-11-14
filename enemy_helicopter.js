@@ -75,7 +75,7 @@ EnemyHelicopter.prototype = {
 
 				Resource.Audio.missile.play();
 
-				var missile = new Missile(this.x - 25, this.y + 21, this.game.heli.x - this.game.background.back_x, this.game.heli.y, -5, this.game.missiles.length, this.game);
+				var missile = new Missile(this.x - 40, this.y + 21, this.game.heli.x - this.game.background.back_x, this.game.heli.y, -5, this.game.missiles.length, this.game);
 				this.game.collision_system.add(missile, missile.x - missile.leftEdge, missile.x + missile.rightEdge);
 				this.game.missiles.push(missile);
 			}

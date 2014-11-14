@@ -119,18 +119,37 @@ Missile.prototype = {
 			this.game.collision_system.remove(object.collision_index);
 			this.game.removeObject(this.game.enemy_helicopters, object.gameIndex);
 
-			object.exploding = true;
+			this.exploding = true;
 			this.game.score += 10;
 			Resource.Audio.explosion.play();
 	    	break;
 	    case 6:
-	      	this.game.collision_system.remove(this.collision_index);
      	 	this.game.collision_system.remove(object.collision_index);
-        	this.game.removeObject(this.game.missiles, this.gameIndex);
         	this.game.removeObject(this.game.turrets, object.gameIndex);
+
+    		this.exploding = true;
+
         	this.game.score += 10;
 			Resource.Audio.explosion.play();
 	      	break;
+ 	    case 7:
+     	 	this.game.collision_system.remove(object.collision_index);
+        	this.game.removeObject(this.game.tanks, object.gameIndex);
+
+			this.exploding = true;
+
+        	this.game.score += 10;
+			Resource.Audio.explosion.play();
+	      	break;
+	    case 8:
+
+	    	if(!this.exploding){
+	    		this.exploding = true;
+	    		object.health -= 2;
+	    		Resource.Audio.explosion.play();
+	    	}
+
+	    	break;
 	    
 	  }
 	  

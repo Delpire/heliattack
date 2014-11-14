@@ -50,7 +50,7 @@ Turret.prototype = {
 		this.wait--;
 	},
 
-	collide: function(){
+	collide: function(object){
 
 		switch(object.type){
 
@@ -71,6 +71,9 @@ Turret.prototype = {
 				this.game.removeObject(this.game.turrets, this.gameIndex)
 				this.game.score += 10;
 				Resource.Audio.explosion.play();
+				break;
+			case 7:
+				object.undo();
 				break;
 
 		}

@@ -94,6 +94,20 @@ Bullet.prototype = {
         	this.game.score += 10;
 			Resource.Audio.explosion.play();
 	      	break;
+	    case 7:
+	      	this.game.collision_system.remove(this.collision_index);
+     	 	this.game.collision_system.remove(object.collision_index);
+        	this.game.removeObject(this.game.bullets, this.gameIndex);
+        	this.game.removeObject(this.game.tanks, object.gameIndex);
+        	this.game.score += 10;
+			Resource.Audio.explosion.play();
+	      	break;
+      	case 8:
+      		this.game.collision_system.remove(this.collision_index);
+      		this.game.removeObject(this.game.bullets, this.gameIndex);
+      		object.health--;
+      		Resource.Audio.explosion.play();
+      		break;
 
 	    
 	  }
