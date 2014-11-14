@@ -1,7 +1,11 @@
 
 FLAME_FRAMES = [ [385, 76, 6, 5, 4, 2], [393, 75, 10, 6, 8, 1], [405, 75, 8, 6, 7, 1]];
 
-var Missile = function(x, y, mouse_x, mouse_y){
+var Missile = function(x, y, mouse_x, mouse_y, gameIndex, game){
+	this.type = 3;
+	this.gameIndex = gameIndex;
+	this.game = game;
+	
 	this.x = x;
 	this.y = y;
 	this.target_x = mouse_x;
@@ -10,6 +14,15 @@ var Missile = function(x, y, mouse_x, mouse_y){
 	this.frame_index = 0;
 	this.number_of_frames = 0;
 	this.explode = false;
+	
+	// Collision Detals
+  this.topEdge = 25 * Math.sin(angle);
+  this.bottomEdge = y;
+  this.leftEdge = x;
+  this.rightEdge = 25 * Math.cos(angle);
+  this.left_index;
+  this.right_index;
+  this.collision_index;
 }
 
 Missile.prototype = {
@@ -60,6 +73,17 @@ Missile.prototype = {
 		}
 
 		return false;
+	},
+	
+	collide: function(object){
+	  
+	  switch(object.type){
+	    
+	    case 4:
+	      break;
+	    
+	  }
+	  
 	}
 
 }

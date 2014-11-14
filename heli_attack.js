@@ -94,21 +94,6 @@ Game.prototype = {
 		for(var i = 0; i < this.missiles.length; i++){
 			
 			if(this.missiles[i].update()){
-
-				for(var j = 0; j < this.balloons.length; j++){
-
-					// If the Balloon is on the screen, then it can be hit.
-					if(this.balloons[j].x >= this.background.back_x && this.balloons[j].x <= this.background.back_x + 800){
-
-						if(((this.missiles[i].x + 30) - (this.balloons[j].x - this.background.back_x + 14)) * ((this.missiles[i].x + 30) - (this.balloons[j].x - this.background.back_x + 14))
-						 + ((this.missiles[i].y + 15) - (this.balloons[j].y + 15)) * ((this.missiles[i].y + 15) - (this.balloons[j].y + 15)) <= 1200 * 4){
-							this.balloons[j].exploding = true;
-							this.balloons[j].number_of_frames = 0;
-						}
-					}
-
-				}
-
 				this.missiles.splice(i,1);
 			}
 		}
@@ -119,21 +104,8 @@ Game.prototype = {
 
 				if(!this.balloons[i].update()){
 				  this.spawnPowerUp(this.balloons[i].x, this.balloons[i].y);
-					this.balloons.splice(i, 1);
+					this.removeObject(this.balloons, this.balloons[i].gameIndex);
 					this.score += 10;
-				}
-
-				for(var j = 0; j < this.missiles.length; j++){
-
-					if(this.balloons.length === 0){
-						break;
-					}
-
-					// Check collision between missile and balloon.
-					this.balloons[i].checkCollision(
-					this.missiles[j].x + (24 * Math.cos(this.missiles[j].angle)),
-					this.missiles[j].y + (24 * Math.sin(this.missiles[j].angle)), this.background.back_x);
-
 				}
 			}
 		}

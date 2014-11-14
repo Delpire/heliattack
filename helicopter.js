@@ -104,17 +104,24 @@ Helicopter.prototype = {
 		// If the player is moving forward, then the missile needs to start at
 		// a different location to account for the tilted barrel.
 		if(inputState.right){
-			return missile = new Missile(this.x - 25 - this.game.background.back_x, this.y + 25, mouse_x, mouse_y);
+		  
+		  missile = new Missile(this.x - 25 - this.game.background.back_x, this.y + 25, mouse_x, mouse_y, this.game.missiles.length, this.game)
+		  this.game.collision_system.add(missile, missile.x - missile.leftEdge, missile.y + missile.rightEdge)
+		  return missile;
 		}
 
 		// If the player is moving backward, then the missile needs to start at
 		// a different location to account for the tilted barrel.
 		if(inputState.left){
-			return missile = new Missile(this.x - 25 - this.game.background.back_x, this.y + 25, mouse_x, mouse_y);
+		  
+		  missile = new Missile(this.x - 25 - this.game.background.back_x, this.y + 25, mouse_x, mouse_y, this.game.missiles.length, this.game)
+		  this.game.collision_system.add(missile, missile.x - missile.leftEdge, missile.y + missile.rightEdge)
+		  return missile;
 		}
 		
-		return missile = new Missile(this.x - this.game.background.back_x, this.y + 30, mouse_x, mouse_y);
-		
+		missile = new Missile(this.x - this.game.background.back_x, this.y + 30, mouse_x, mouse_y, this.game.missiles.length, this.game)
+	  this.game.collision_system.add(missile, missile.x - missile.leftEdge, missile.y + missile.rightEdge)
+	  return missile;
 	},
 
 	fireBullet: function(inputState){

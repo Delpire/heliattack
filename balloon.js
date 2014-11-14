@@ -98,6 +98,8 @@ Balloon.prototype = {
         this.game.removeObject(this.game.balloons, this.gameIndex);
 	      
 	      break;
+	    case 3:
+	      break;
 	    
 	  }
 	  
