@@ -15,9 +15,9 @@ var Helicopter = function(game, x, y) {
 	this.missiles = 5;
 	this.lives = 3;
 	this.topEdge = 0;
-	this.bottomEdge = 28;
-	this.leftEdge = 76;
-	this.rightEdge = 37;
+	this.bottomEdge = 25;
+	this.leftEdge = 70;
+	this.rightEdge = 40;
 	this.left_index;
 	this.right_index;
 	this.collision_index;
@@ -101,11 +101,13 @@ Helicopter.prototype = {
 
 	fireMissile: function(mouse_x, mouse_y, inputState){
 
+		Resource.Audio.missile.play();
+
 		// If the player is moving forward, then the missile needs to start at
 		// a different location to account for the tilted barrel.
 		if(inputState.right){
 		  
-		  missile = new Missile(this.x - 25, this.y + 25, mouse_x, mouse_y, this.game.missiles.length, this.game)
+		  missile = new Missile(this.x - 25, this.y + 45, mouse_x, mouse_y, 5, this.game.missiles.length, this.game)
 		  this.game.collision_system.add(missile, missile.x - missile.leftEdge, missile.y + missile.rightEdge)
 		  return missile;
 		}
@@ -114,12 +116,12 @@ Helicopter.prototype = {
 		// a different location to account for the tilted barrel.
 		if(inputState.left){
 		  
-		  missile = new Missile(this.x - 25, this.y + 25, mouse_x, mouse_y, this.game.missiles.length, this.game)
+		  missile = new Missile(this.x - 25, this.y + 45, mouse_x, mouse_y, 5, this.game.missiles.length, this.game)
 		  this.game.collision_system.add(missile, missile.x - missile.leftEdge, missile.y + missile.rightEdge)
 		  return missile;
 		}
 		
-		missile = new Missile(this.x, this.y + 30, mouse_x, mouse_y, this.game.missiles.length, this.game)
+		missile = new Missile(this.x, this.y + 45, mouse_x, mouse_y, 5, this.game.missiles.length, this.game)
 	  this.game.collision_system.add(missile, missile.x - missile.leftEdge, missile.y + missile.rightEdge)
 	  return missile;
 	},
@@ -128,10 +130,12 @@ Helicopter.prototype = {
     
     var bullet;
     
+    	Resource.Audio.bullet.play();
+
 		// If the player is moving forward, then the bullet needs to start at
 		// a different location to account for the tilted barrel.
 		if(inputState.right){
-		  bullet = new Bullet(this.x + 25, this.y + 30, 10, this.game.bullets.length, this.game);
+		  bullet = new Bullet(this.x + 45, this.y + 30, 10, 0, this.game.bullets.length, this.game);
 		  this.game.collision_system.add(bullet, bullet.x - bullet.leftEdge, bullet.x + bullet.rightEdge);
 			return bullet;
 		}
@@ -140,13 +144,13 @@ Helicopter.prototype = {
 		// a different location to account for the tilted barrel.
 		if(inputState.left){
 		  
-		  bullet = new Bullet(this.x + 25, this.y + 3, 10, this.game.bullets.length, this.game);
+		  bullet = new Bullet(this.x + 35, this.y + 3, 10, 0, this.game.bullets.length, this.game);
 		  this.game.collision_system.add(bullet, bullet.x - bullet.leftEdge, bullet.x + bullet.rightEdge);
 			return bullet;
 		}
 	
-	  bullet = new Bullet(this.x + 25, this.y + 16, 10, this.game.bullets.length, this.game);
-	  this.game.collision_system.add(bullet, bullet.x - bullet.leftEdge, bullet.x + bullet.rightEdge);
+		bullet = new Bullet(this.x + 35, this.y + 16, 10, 0, this.game.bullets.length, this.game);
+		this.game.collision_system.add(bullet, bullet.x - bullet.leftEdge, bullet.x + bullet.rightEdge);
 		return bullet;
 	},
 	
@@ -158,28 +162,74 @@ Helicopter.prototype = {
 	      
 	      switch(object.upgrade){
 	        
-	        case 0:
-	          this.health += 10;
-	          break;
-          case 1:
-            this.missiles += 3;
-            break;
-          case 2:
-            this.lives++;
-            break;
-          case 3:
-            this.health -= 10;
-            break;
+			case 0:
+				this.health += 10;
+				Resource.Audio.upgrade.play();
+				break;
+			case 1:
+				this.missiles += 3;
+				Resource.Audio.upgrade.play();
+				break;
+			case 2:
+				this.lives++;
+				Resource.Audio.upgrade.play();
+				break;
+			case 3:
+				Resource.Audio.explosion.play();
+
+				this.health -= 10;
+
+	  			if(this.health <= 0 && this.lives > 0){
+	  				this.lives--;
+	  				this.health = 100;
+	  			}
+	  			else if(this.health <= 0 && this.lives <= 0){
+	  				this.game.gameOverSplash();
+	  			}
+	        	break;
 	      }
 	      
 	      this.game.collision_system.remove(object.collision_index);
 	      this.game.removeObject(this.game.power_ups, object.gameIndex);
 
 	      break;
-      case -1:
-        break;
-	    
-	    
+
+	    case 2:
+
+      		Resource.Audio.explosion.play();
+
+  		 	this.game.collision_system.remove(object.collision_index);
+	      	this.game.removeObject(this.game.bullets, object.gameIndex);
+
+      		this.health -= 10;
+
+      		if(this.health <= 0 && this.lives > 0){
+      			this.lives--;
+      			this.health = 100;
+      		}
+      		else if(this.health <= 0 && this.lives <= 0){
+      			this.game.gameOverSplash();
+      		}
+
+	   		break;
+      	case 3:
+
+      		Resource.Audio.explosion.play();
+
+  		 	this.game.collision_system.remove(object.collision_index);
+	      	this.game.removeObject(this.game.missiles, object.gameIndex);
+
+      		this.health -= 10;
+
+      		if(this.health <= 0 && this.lives > 0){
+      			this.lives--;
+      			this.health = 100;
+      		}
+      		else if(this.health <= 0 && this.lives <= 0){
+      			this.game.gameOverSplash();
+      		}
+
+        	break;   
 	  }
 	  
 	  

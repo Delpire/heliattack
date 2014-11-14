@@ -33,15 +33,27 @@ Upgrade.prototype = {
 	        
 	        case 0:
 	          object.health += 10;
+            Resource.Audio.upgrade.play();
 	          break;
           case 1:
             object.missiles += 3;
+            Resource.Audio.upgrade.play();
             break;
           case 2:
             object.lives++;
+            Resource.Audio.upgrade.play();
             break;
           case 3:
+            Resource.Audio.explosion.play();
             object.health -= 10;
+
+            if(object.health <= 0 && object.lives > 0){
+              object.lives--;
+              object.health = 100;
+            }
+            else if(object.health <= 0 && object.lives <= 0){
+              this.game.gameOverSplash();
+            }
             break;
 	      }
 	      

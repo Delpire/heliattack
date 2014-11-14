@@ -1,7 +1,7 @@
 
 FLAME_FRAMES = [ [385, 76, 6, 5, 4, 2], [393, 75, 10, 6, 8, 1], [405, 75, 8, 6, 7, 1]];
 
-var Missile = function(x, y, mouse_x, mouse_y, gameIndex, game){
+var Missile = function(x, y, mouse_x, mouse_y, velocity, gameIndex, game){
 	this.type = 3;
 	this.gameIndex = gameIndex;
 	this.game = game;
@@ -14,6 +14,8 @@ var Missile = function(x, y, mouse_x, mouse_y, gameIndex, game){
 	this.frame_index = 0;
 	this.number_of_frames = 0;
 	this.explode = false;
+
+	this.velocity = velocity;
 	
 	// Collision Detals
 	this.topEdge = 25 * Math.sin(this.angle);
@@ -32,6 +34,9 @@ Missile.prototype = {
 		context.save();
 		context.translate(this.x - this.game.background.back_x, this.y - 4);
 		context.rotate(this.angle);
+		if(this.velocity < 0){
+			context.scale(-1,1);
+		}
 		if(this.explode){
 			context.drawImage(Resource.Image.helicopter_spritesheet, 419, 83, 33, 29, 0, 0, 33, 29);
 		}
@@ -63,8 +68,8 @@ Missile.prototype = {
 			}
 		}
 		else{
-			this.x += 5 * Math.cos(this.angle);
-			this.y += 5 * Math.sin(this.angle);
+			this.x += this.velocity * Math.cos(this.angle);
+			this.y += this.velocity * Math.sin(this.angle);
 
 			if(this.number_of_frames == 10){
 				this.frame_index = (this.frame_index + 1) % 3;
@@ -73,6 +78,7 @@ Missile.prototype = {
 
 			if(Math.abs(this.target_x - this.x) < 5 && Math.abs(this.target_y - this.y) < 5){
 				this.explode = true;
+				Resource.Audio.explosion.play();
 				this.number_of_frames = 0;
 			}
 		}
@@ -84,6 +90,25 @@ Missile.prototype = {
 	  
 	  switch(object.type){
 	    
+	  	case 0:
+
+	  		Resource.Audio.explosion.play();
+
+  		 	this.game.collision_system.remove(this.collision_index);
+	      	this.game.removeObject(this.game.missiles, this.gameIndex);
+
+      		object.health -= 10;
+
+      		if(object.health <= 0 && object.lives > 0){
+      			object.lives--;
+      			object.health = 100;
+      		}
+      		else if(object.health <= 0 && object.lives <= 0){
+      			this.game.gameOverSplash();
+      		}
+
+	  		break;
+
 	    //Spawn power up and remove Balloon and Missile.
 	    case 4:
      	 	this.game.collision_system.remove(object.collision_index);	      
@@ -94,10 +119,18 @@ Missile.prototype = {
 			this.game.collision_system.remove(object.collision_index);
 			this.game.removeObject(this.game.enemy_helicopters, object.gameIndex);
 
-			this.game.collision_system.remove(this.collision_index);
-			this.game.removeObject(this.game.missiles, this.gameIndex);
+			object.exploding = true;
 			this.game.score += 10;
+			Resource.Audio.explosion.play();
 	    	break;
+	    case 6:
+	      	this.game.collision_system.remove(this.collision_index);
+     	 	this.game.collision_system.remove(object.collision_index);
+        	this.game.removeObject(this.game.missiles, this.gameIndex);
+        	this.game.removeObject(this.game.turrets, object.gameIndex);
+        	this.game.score += 10;
+			Resource.Audio.explosion.play();
+	      	break;
 	    
 	  }
 	  

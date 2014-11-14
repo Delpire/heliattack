@@ -11,6 +11,13 @@ Resource = {
 		upgrade_spritesheet: new Image(),
 		levels: [new Image(), new Image(), new Image()],
 		menu: new Image(),
+	},
+	Audio: {
+		music: new Audio(),
+		upgrade: new Audio(),
+		explosion: new Audio(),
+		bullet: new Audio(),
+		missile: new Audio(),
 	}
 }
 function onload() {
@@ -20,6 +27,28 @@ function onload() {
 
 Resource.Image.menu.onload = onload;
 Resource.Image.menu.src = "menu.png";
+
+Resource.Audio.music.onload = onload;
+Resource.Audio.music.src = "music.mp3";
+Resource.Audio.music.volume = 0.5;
+Resource.Audio.music.loop = true;
+Resource.Audio.music.play();
+
+Resource.Audio.upgrade.onload = onload;
+Resource.Audio.upgrade.src = "upgrade_audio.wav";
+Resource.Audio.upgrade.volume = 0.25;
+
+Resource.Audio.explosion.onload = onload;
+Resource.Audio.explosion.src = "explosion_audio.wav";
+Resource.Audio.explosion.volume = 0.25;
+
+Resource.Audio.bullet.onload = onload;
+Resource.Audio.bullet.src = "bullet_audio.wav";
+Resource.Audio.bullet.volume = 1;
+
+Resource.Audio.missile.onload = onload;
+Resource.Audio.missile.src = "missile_audio.wav";
+Resource.Audio.missile.volume = 0.75;
 
 Resource.Image.helicopter_spritesheet.onload = onload;
 Resource.Image.enemy_spritesheet.onload = onload;

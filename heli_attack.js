@@ -51,6 +51,8 @@ var Game = function (canvasId) {
 	this.bullets = [];
 	this.power_ups = [];
 	this.enemy_helicopters = [];
+	this.turrets = [];
+	this.tanks = [];
 	
 	this.score = 0;
 	
@@ -84,7 +86,7 @@ Game.prototype = {
 			this.collision_system.update(this.bullets[i].collision_index, this.bullets[i].x - this.bullets[i].leftEdge,
 			                                  this.bullets[i].x + this.bullets[i].rightEdge);
       
-			if(this.bullets[i].x > this.background.back_x + 800){
+			if(this.bullets[i].x > this.background.back_x + 800 || this.bullets[i].y <= -5){
 			 	this.collision_system.remove(this.bullets[i].collision_index);
 				this.removeObject(this.bullets, i);
 			}
@@ -120,7 +122,19 @@ Game.prototype = {
 			this.collision_system.update(this.enemy_helicopters[i].collision_index, this.enemy_helicopters[i].x - this.enemy_helicopters[i].leftEdge,
 										this.enemy_helicopters[i].x + this.enemy_helicopters[i].rightEdge);
 		}
+
+		for(var i = 0; i < this.turrets.length; i++){
+			this.turrets[i].update();
+			this.collision_system.update(this.turrets[i].collision_index, this.turrets[i].x - this.turrets[i].leftEdge,
+										this.turrets[i].x + this.turrets[i].rightEdge);
+		}
 		
+		for(var i = 0; i < this.tanks.length; i++){
+			this.tanks[i].update();
+			this.collision_system.update(this.tanks[i].collision_index, this.tanks[i].x - this.tanks[i].leftEdge,
+										this.tanks[i].x + this.tanks[i].rightEdge);
+		}
+
 		var collisions = this.collision_system.checkCollisions();
 		
 		if(collisions.length == 2){
@@ -172,6 +186,14 @@ Game.prototype = {
 
 		for(i = 0; i < this.enemy_helicopters.length; i++){
 			this.enemy_helicopters[i].render(this.backBufferContext);
+		}
+
+		for(i = 0; i < this.turrets.length; i++){
+			this.turrets[i].render(this.backBufferContext);
+		}
+
+		for(i = 0; i < this.tanks.length; i++){
+			this.tanks[i].render(this.backBufferContext);
 		}
 
 		// Draw Reticule.
@@ -281,9 +303,18 @@ Game.prototype = {
 	initBalloons: function(){
 
 		//REMOVE
-		var h = new EnemyHelicopter(400, 240, this.enemy_helicopters.length, this);
-		this.collision_system.add(h, h.x - h.leftEdge, h.x + h.rightEdge);
-		this.enemy_helicopters.push(h);
+		//var h = new EnemyHelicopter(400, 240, this.enemy_helicopters.length, this);
+		//this.collision_system.add(h, h.x - h.leftEdge, h.x + h.rightEdge);
+		//this.enemy_helicopters.push(h);
+
+		//var t = new Turret(1500, 400, this.turrets.length, this);
+		//this.collision_system.add(t, t.x - t.leftEdge, t.x + t.rightEdge);
+		//this.turrets.push(t);
+
+		var t = new Tank(1500, 436, this.tanks.length, this);
+		this.collision_system.add(t, t.x - t.leftEdge, t.x + t.rightEdge);
+		this.tanks.push(t);
+
 		//REMOVE
 
 
@@ -342,6 +373,21 @@ Game.prototype = {
 
 	},
 
+
+	gameOverSplash: function(){
+
+		this.gui.noRender();
+		this.paused = true;
+
+		this.screenContext.drawImage(Resource.Image.menu, 0, 0, 800, 480, 0, 0, 800, 480);
+		this.screenContext.drawImage(Resource.Image.menu, 24, 591, 768, 133, 25, 70, 768, 133);
+		this.screenContext.font = "100px Consolas";
+		this.screenContext.fillText("GAME OVER", 150, 400);
+
+		setTimeout(function(){game.gameOver = true;}, 4000);
+
+	},
+
 	playCredits: function(){
 
 		this.screenContext.fillStyle = 'black';
@@ -354,11 +400,11 @@ Game.prototype = {
 		this.screenContext.fillText("Art By:", 250, 550 - this.creditsOffset);
 		this.screenContext.fillText("Robin Delpire", 200, 600 - this.creditsOffset);
 		this.screenContext.fillText("Sound Effects:", 250, 700 - this.creditsOffset);
-		this.screenContext.fillText("The Sound Program", 150, 750 - this.creditsOffset);
+		this.screenContext.fillText("www.bfxr.net", 150, 750 - this.creditsOffset);
 		this.screenContext.fillText("Music:", 250, 850 - this.creditsOffset);
-		this.screenContext.fillText("A Song", 200, 900 - this.creditsOffset);
+		this.screenContext.fillText("Underclocked", 200, 900 - this.creditsOffset);
 		this.screenContext.fillText("by", 300, 950 - this.creditsOffset);
-		this.screenContext.fillText("An Artist", 200, 1000 - this.creditsOffset);
+		this.screenContext.fillText("Eric Skiff", 200, 1000 - this.creditsOffset);
 		this.screenContext.fillText("Music Under:", 250, 1100 - this.creditsOffset);
 		this.screenContext.fillText("Creative Commons Liscense", 100, 1150 - this.creditsOffset);
 		this.screenContext.fillText("The End!", 250, 1250 - this.creditsOffset);
@@ -366,7 +412,7 @@ Game.prototype = {
 		this.screenContext.fillText("Sean Meier", 300, 1550 - this.creditsOffset);
 		this.screenContext.fillText("for distractions...", 200, 2000 - this.creditsOffset);
 
-		if(this.creditsOffset < 2000){
+		if(this.creditsOffset < 2500){
 			this.creditsOffset = this.creditsOffset + 2;
 		}
 	},
