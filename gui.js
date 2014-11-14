@@ -36,16 +36,21 @@ var GUI = function(game) {
 		this.minimapCanvas.width = this.minimapCanvas.width;
 
 
-		this.minimapContext.drawImage(this.minimap, 0, 0, 800, 100, 0, 0, 800, 100);
+		this.minimapContext.drawImage(this.minimap, 0, 100 * this.game.level, 800, 100, 0, 0, 800, 100);
 
 		this.minimapContext.strokeStyle = "#000000";
 		this.minimapContext.fillStyle = "#00CC00";
 		this.minimapContext.beginPath();
-		this.minimapContext.arc(800 * (this.game.background.back_x + this.game.heli.x) / 3000, 100 * this.game.heli.y / 480, 3, 0, 2*Math.PI, false);
+		this.minimapContext.arc(800 * (this.game.heli.x) / LEVEL_LENGTH[this.game.level], 100 * this.game.heli.y / 480, 3, 0, 2*Math.PI, false);
 		this.minimapContext.fill();
 		this.minimapContext.stroke();
 		this.minimapContext.strokeStyle = "#000000";
-		this.minimapContext.rect(800 * this.game.background.back_x / 3000, 0, 213, 100);
+		if(this.game.level == 0){
+			this.minimapContext.rect(800 * this.game.background.back_x / LEVEL_LENGTH[this.game.level], 0, 213, 100);
+		}
+		else{
+			this.minimapContext.rect(800 * this.game.background.back_x / LEVEL_LENGTH[this.game.level], 0, 213 / 2, 100);
+		}
 		this.minimapContext.stroke();
 
 	}

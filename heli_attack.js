@@ -415,6 +415,10 @@ Game.prototype = {
 			this.collision_system.add(boss4, boss4.x - boss4.leftEdge, boss4.x + boss4.rightEdge);
 			this.boss.push(boss4);
 
+			var boss5 = new Boss(5927, 5, this.boss.length, this);
+			this.collision_system.add(boss5, boss5.x - boss5.leftEdge, boss5.x + boss5.rightEdge);
+			this.boss.push(boss5);
+
 			break;
 	}
 

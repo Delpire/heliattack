@@ -20,7 +20,7 @@ var EnemyHelicopter = function(x, y, gameIndex, game){
 	this.animation_frame = 0;
 	this.number_of_frames = 0;
 
-	this.wait = 50;
+	this.wait = 0;
 
 	this.state = 0;
 }
@@ -66,18 +66,15 @@ EnemyHelicopter.prototype = {
 
 		if(this.state == 2){
 			
-			if(this.wait === 0){
-				this.state = 1;
-				this.wait = 50;
-			}
-
-			if(this.wait % 50 === 0){
+			if(this.wait <= 0){
 
 				Resource.Audio.missile.play();
 
 				var missile = new Missile(this.x - 40, this.y + 21, this.game.heli.x - this.game.background.back_x, this.game.heli.y, -5, this.game.missiles.length, this.game);
 				this.game.collision_system.add(missile, missile.x - missile.leftEdge, missile.x + missile.rightEdge);
 				this.game.missiles.push(missile);
+				this.state = 1;
+				this.wait = 50;
 			}
 
 			this.wait--;
