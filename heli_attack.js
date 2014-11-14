@@ -50,6 +50,7 @@ var Game = function (canvasId) {
 	this.missiles = [];
 	this.bullets = [];
 	this.power_ups = [];
+	this.enemy_helicopters = [];
 	
 	this.score = 0;
 	
@@ -57,6 +58,8 @@ var Game = function (canvasId) {
 	this.mouse_y;
 	
 	this.level = 0;
+
+	this.creditsOffset = 0;
 }
 	
 Game.prototype = {
@@ -111,6 +114,12 @@ Game.prototype = {
 				}
 			}
 		}
+
+		for(var i = 0; i < this.enemy_helicopters.length; i++){
+			this.enemy_helicopters[i].update();
+			this.collision_system.update(this.enemy_helicopters[i].collision_index, this.enemy_helicopters[i].x - this.enemy_helicopters[i].leftEdge,
+										this.enemy_helicopters[i].x + this.enemy_helicopters[i].rightEdge);
+		}
 		
 		var collisions = this.collision_system.checkCollisions();
 		
@@ -159,6 +168,10 @@ Game.prototype = {
 		
 		for(i = 0; i < this.power_ups.length; i++){
 		  this.power_ups[i].render(this.backBufferContext);
+		}
+
+		for(i = 0; i < this.enemy_helicopters.length; i++){
+			this.enemy_helicopters[i].render(this.backBufferContext);
 		}
 
 		// Draw Reticule.
@@ -242,6 +255,14 @@ Game.prototype = {
 	nextLevel: function(){
 	  
     this.level++;
+
+    this.gui.noRender();
+
+    if(this.level == 3){
+    	this.paused = true;
+    	this.gameOver = true;
+    	return;
+    }
 	
     this.transitionLevel();
 
@@ -258,6 +279,13 @@ Game.prototype = {
 	},
 
 	initBalloons: function(){
+
+		//REMOVE
+		var h = new EnemyHelicopter(400, 240, this.enemy_helicopters.length, this);
+		this.collision_system.add(h, h.x - h.leftEdge, h.x + h.rightEdge);
+		this.enemy_helicopters.push(h);
+		//REMOVE
+
 
 		for(var i = 0; i < 18 / (this.level + 1); i++){
 
@@ -313,6 +341,35 @@ Game.prototype = {
 		setTimeout(function(){game.paused = false;}, 2000);
 
 	},
+
+	playCredits: function(){
+
+		this.screenContext.fillStyle = 'black';
+		this.screenContext.fillRect(0, 0, 800, 480);
+		this.screenContext.fillStyle = 'white';
+		this.screenContext.font = "50px Consolas";
+		this.screenContext.fillText("HeliAttack", 250, 300 - this.creditsOffset);
+		this.screenContext.fillText("Created By:", 250, 400 - this.creditsOffset);
+		this.screenContext.fillText("Chris Delpire", 200, 450 - this.creditsOffset);
+		this.screenContext.fillText("Art By:", 250, 550 - this.creditsOffset);
+		this.screenContext.fillText("Robin Delpire", 200, 600 - this.creditsOffset);
+		this.screenContext.fillText("Sound Effects:", 250, 700 - this.creditsOffset);
+		this.screenContext.fillText("The Sound Program", 150, 750 - this.creditsOffset);
+		this.screenContext.fillText("Music:", 250, 850 - this.creditsOffset);
+		this.screenContext.fillText("A Song", 200, 900 - this.creditsOffset);
+		this.screenContext.fillText("by", 300, 950 - this.creditsOffset);
+		this.screenContext.fillText("An Artist", 200, 1000 - this.creditsOffset);
+		this.screenContext.fillText("Music Under:", 250, 1100 - this.creditsOffset);
+		this.screenContext.fillText("Creative Commons Liscense", 100, 1150 - this.creditsOffset);
+		this.screenContext.fillText("The End!", 250, 1250 - this.creditsOffset);
+		this.screenContext.fillText("Special Thanks:", 250, 1500 - this.creditsOffset);
+		this.screenContext.fillText("Sean Meier", 300, 1550 - this.creditsOffset);
+		this.screenContext.fillText("for distractions...", 200, 2000 - this.creditsOffset);
+
+		if(this.creditsOffset < 2000){
+			this.creditsOffset = this.creditsOffset + 2;
+		}
+	},
 	
 	start: function() {
 		var self = this;
@@ -358,16 +415,19 @@ Game.prototype = {
 		// We want a fixed game loop of 1/60th a second, so if necessary run multiple
 		// updates during each rendering pass
 		// Invariant: We have unprocessed time in excess of TIME_STEP
-		while (this.elapsedTime >= TIME_STEP) {
-			self.update(TIME_STEP);
-			this.elapsedTime -= TIME_STEP;
-			
-			// add the TIME_STEP to gameTime
-			this.gameTime += TIME_STEP;
+		if(!this.gameOver){
+			while (this.elapsedTime >= TIME_STEP) {
+				self.update(TIME_STEP);
+				this.elapsedTime -= TIME_STEP;
+				
+				// add the TIME_STEP to gameTime
+				this.gameTime += TIME_STEP;
+			}
 		}
-		
+
 		// We only want to render once
 		if(!this.paused) self.render(this.elapsedTime);
+		if(this.gameOver) self.playCredits();
 		
 		// Repeat the game loop
 		window.requestNextAnimationFrame(

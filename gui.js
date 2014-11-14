@@ -49,4 +49,19 @@ var GUI = function(game) {
 		this.minimapContext.stroke();
 
 	}
+
+	this.noRender = function(){
+
+		// Render Health
+		this.bottomLeft.innerHTML = "";
+
+		// Render Lives
+		this.topLeft.innerHTML = "";
+
+		// Render Missiles
+		this.topCenter.innerHTML = "";
+
+		// Render Score
+		this.topRight.innerHTML = "";
+	}
 }
