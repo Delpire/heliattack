@@ -182,6 +182,13 @@ Game.prototype = {
 		this.backBufferContext.fillRect(0, 0, WIDTH, HEIGHT);
 		
 		this.background.render(this.backBufferContext)
+
+		if(this.background.back_x >= 2200 && this.level === 0){
+			this.backBufferContext.drawImage(Resource.Image.helicopter_spritesheet, 130, 73, 130, 42, 655, 40, 130, 42);
+		}
+		else if(this.background.back_x >= 5200 && this.level > 0 && this.boss.length === 0){
+			this.backBufferContext.drawImage(Resource.Image.helicopter_spritesheet, 130, 73, 130, 42, 655, 40, 130, 42);
+		}
 		
 		for(var i = 0; i < this.missiles.length; i++){
 			this.missiles[i].render(this.backBufferContext);
