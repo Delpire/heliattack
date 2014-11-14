@@ -90,6 +90,14 @@ Missile.prototype = {
 	      	object.exploding = true;
 			object.number_of_frames = 0;
 	      	break;
+	    case 5:
+			this.game.collision_system.remove(object.collision_index);
+			this.game.removeObject(this.game.enemy_helicopters, object.gameIndex);
+
+			this.game.collision_system.remove(this.collision_index);
+			this.game.removeObject(this.game.missiles, this.gameIndex);
+			this.game.score += 10;
+	    	break;
 	    
 	  }
 	  
