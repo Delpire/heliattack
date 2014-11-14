@@ -3,19 +3,23 @@ var NUM_OF_LEVELS = 3;
 // Resources
 //----------------------------------
 Resource = {
-	loading: 7,
+	loading: 8,
 	Image: {
 		helicopter_spritesheet: new Image(),
 		enemy_spritesheet: new Image(),
 		balloon_spritesheet: new Image(),
 		upgrade_spritesheet: new Image(),
 		levels: [new Image(), new Image(), new Image()],
+		menu: new Image(),
 	}
 }
 function onload() {
 	console.log("Loaded", this);
 	Resource.loading -= 1;
 }
+
+Resource.Image.menu.onload = onload;
+Resource.Image.menu.src = "menu.png";
 
 Resource.Image.helicopter_spritesheet.onload = onload;
 Resource.Image.enemy_spritesheet.onload = onload;

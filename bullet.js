@@ -1,22 +1,22 @@
 
 var Bullet = function(x, y, velocity, gameIndex, game){
-	
+
 	this.type = 2;
-	
+
 	this.x = x;
 	this.y = y;
 	this.velocity = velocity;
 	this.radius = 1;
 	this.game = game;
 	this.gameIndex = gameIndex;
-  this.topEdge = this.radius;
-  this.bottomEdge = this.radius;
-  this.leftEdge = this.radius;
-  this.rightEdge = this.radius + 10;
-  this.left_index;
-  this.right_index;
-  this.collision_index;
-	
+	this.topEdge = this.radius;
+	this.bottomEdge = this.radius;
+	this.leftEdge = this.radius;
+	this.rightEdge = this.radius + 10;
+	this.left_index;
+	this.right_index;
+	this.collision_index;
+
 
 }
 
@@ -45,14 +45,13 @@ Bullet.prototype = {
 	    
 	    //Spawn power up and remove Balloon and Bullet.
 	    case 4:
-	      this.game.spawnPowerUp(object.x, object.y);
-
-	      this.game.collision_system.remove(this.collision_index);
-	      this.game.collision_system.remove(object.collision_index);
-	      this.game.removeObject(this.game.balloons, object.gameIndex);
-        this.game.removeObject(this.game.bullets, this.gameIndex);
+	      	this.game.collision_system.remove(this.collision_index);
+     	 	this.game.collision_system.remove(object.collision_index);
+        	this.game.removeObject(this.game.bullets, this.gameIndex);
 	      
-	      break;
+	      	object.exploding = true;
+			object.number_of_frames = 0;
+	      	break;
 	    
 	  }
 	  

@@ -19,6 +19,8 @@ var Game = function (canvasId) {
 	this.backBuffer.height = this.screen.height;
  	this.backBufferContext = this.backBuffer.getContext('2d');
 	
+	this.gameState = "loading";
+
 	this.inputState = {
 		up: false,
 		down: false,
@@ -69,12 +71,8 @@ Game.prototype = {
 		
 		if(this.heli.x >= LEVEL_LENGTH[this.level] + 75)
 		{
-		  
-		  //TODO: Add splash screen.
-		  
 		  //Load the next level.
 		  this.nextLevel();
-
 		  return;
 		}
 		
@@ -84,7 +82,7 @@ Game.prototype = {
 			                                  this.bullets[i].x + this.bullets[i].rightEdge);
       
 			if(this.bullets[i].x > this.background.back_x + 800){
-			  this.collision_system.remove(this.bullets[i].collision_index);
+			 	this.collision_system.remove(this.bullets[i].collision_index);
 				this.removeObject(this.bullets, i);
 			}
 		}
@@ -93,8 +91,12 @@ Game.prototype = {
 		// check to see if there are any balloons near it.
 		for(var i = 0; i < this.missiles.length; i++){
 			
+			this.collision_system.update(this.missiles[i].collision_index, this.missiles[i].x - this.missiles[i].leftEdge,
+			                                  this.missiles[i].x + this.missiles[i].rightEdge);
+
 			if(this.missiles[i].update()){
-				this.missiles.splice(i,1);
+				this.collision_system.remove(this.missiles[i].collision_index);
+				this.removeObject(this.missiles, this.missiles[i].gameIndex);
 			}
 		}
 
@@ -103,7 +105,7 @@ Game.prototype = {
 			if(this.balloons[i].x >= this.background.back_x && this.balloons[i].x <= this.background.back_x + 800){
 
 				if(!this.balloons[i].update()){
-				  this.spawnPowerUp(this.balloons[i].x, this.balloons[i].y);
+				  	this.spawnPowerUp(this.balloons[i].x, this.balloons[i].y);
 					this.removeObject(this.balloons, this.balloons[i].gameIndex);
 					this.score += 10;
 				}
@@ -240,15 +242,18 @@ Game.prototype = {
 	nextLevel: function(){
 	  
     this.level++;
-	  
-		this.balloons = [];
-		this.missles = [];
-	  this.bullets = [];
-	  
-	  this.initBalloons();
-	  
-	  this.heli.nextLevel();
-	  this.background.nextLevel();
+	
+    this.transitionLevel();
+
+	this.balloons = [];
+	this.missles = [];
+	this.bullets = [];
+
+	this.initBalloons();
+
+	this.heli.nextLevel();
+	this.background.nextLevel();
+	
 	  
 	},
 
@@ -293,6 +298,20 @@ Game.prototype = {
 	  
 	  array.splice(index, 1);
 	  
+	},
+
+	transitionLevel: function(){
+
+		this.screenContext.drawImage(Resource.Image.menu, 0, 0, 800, 480, 0, 0, 800, 480);
+		this.screenContext.drawImage(Resource.Image.menu, 7 + 198 * this.level, 738, 188, 51, 100, 350, 188, 51);
+		this.screenContext.font = "50px Consolas";
+		this.screenContext.fillText("Score: " + this.score, 425, 388);
+		this.screenContext.drawImage(Resource.Image.menu, 7 + 198 * this.level, 738, 188, 51, 100, 350, 188, 51);
+
+		this.paused = true;
+
+		setTimeout(function(){game.paused = false;}, 2000);
+
 	},
 	
 	start: function() {
@@ -348,7 +367,7 @@ Game.prototype = {
 		}
 		
 		// We only want to render once
-		self.render(this.elapsedTime);
+		if(!this.paused) self.render(this.elapsedTime);
 		
 		// Repeat the game loop
 		window.requestNextAnimationFrame(
@@ -362,10 +381,29 @@ Game.prototype = {
 var game = new Game('game');
 console.log(game);
 function waitForLoad() {
+
+	//var screen = document.getElementById(canvasId);
+	//var screenContext = this.screen.getContext('2d');
+	game.screenContext.drawImage(Resource.Image.menu, 0, 0, 800, 480, 0, 0, 800, 480);
+	game.screenContext.drawImage(Resource.Image.menu, 0, 480, 800, 120, 200, 325, 800, 120);
+
 	if(Resource.loading === 0) {
-		game.start();
+		setTimeout(displaySplash, 2000);
 	} else {
 		setTimeout(waitForLoad, 1000);
 	}
+}
+
+
+function displaySplash(){
+
+	game.screenContext.drawImage(Resource.Image.menu, 0, 0, 800, 480, 0, 0, 800, 480);
+	game.screenContext.drawImage(Resource.Image.menu, 7, 738, 188, 51, 300, 350, 188, 51);
+
+	setTimeout(play, 2000);
+}
+
+function play(){
+	game.start();
 }
 waitForLoad();

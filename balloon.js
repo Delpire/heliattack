@@ -13,13 +13,13 @@ var Balloon = function(x, y, direction, gameIndex, game){
 	this.exploding = false;
 	
 	// Collision Detals
-  this.topEdge = -4;
-  this.bottomEdge = 30;
-  this.leftEdge = -4;
-  this.rightEdge = 25;
-  this.left_index;
-  this.right_index;
-  this.collision_index;
+	this.topEdge = -4;
+	this.bottomEdge = 30;
+	this.leftEdge = -4;
+	this.rightEdge = 25;
+	this.left_index;
+	this.right_index;
+	this.collision_index;
 }
 
 Balloon.prototype = {
@@ -87,19 +87,19 @@ Balloon.prototype = {
 	collide: function(object){
 	  
 	  switch(object.type){
-	    
-	    //Spawn power up and remove Balloon and Bullet.
-	    case 2:
-	      this.game.spawnPowerUp(this.x, this.y);
 
-	      this.game.collision_system.remove(this.collision_index);
-	      this.game.collision_system.remove(object.collision_index);
-	      this.game.removeObject(this.game.bullets, object.gameIndex);
-        this.game.removeObject(this.game.balloons, this.gameIndex);
-	      
-	      break;
-	    case 3:
-	      break;
+		//Spawn power up and remove Balloon and Bullet.
+		case 2:
+	  		this.game.collision_system.remove(this.collision_index);
+	  		this.game.collision_system.remove(object.collision_index);
+			this.game.removeObject(this.game.bullets, object.gameIndex);
+			this.exploding = true;
+			this.number_of_frames = 0;		  
+			break;
+		case 3:
+	      	this.game.collision_system.remove(this.collision_index);
+	      	this.exploding = true;
+			break;
 	    
 	  }
 	  

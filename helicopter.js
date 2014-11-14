@@ -2,25 +2,25 @@
 // Helicopter class
 //----------------------------------
 var Helicopter = function(game, x, y) {
-  	this.type = 0;
-  	this.game = game;
- 	  this.x = x;
-	  this.y = y;
-  	this.velocity = 1;
-	  this.health = 100;
-  	this.pitch_angle = 0;
-	  this.turret_angle = Math.PI / 8;
-	  this.animation_frame = 0;
-	  this.number_of_frames = 0;
-	  this.missiles = 5;
-	  this.lives = 3;
-	  this.topEdge = 0;
-	  this.bottomEdge = 28;
-	  this.leftEdge = 76;
-	  this.rightEdge = 37;
-	  this.left_index;
-	  this.right_index;
-	  this.collision_index;
+	this.type = 0;
+	this.game = game;
+	this.x = x;
+	this.y = y;
+	this.velocity = 1;
+	this.health = 100;
+	this.pitch_angle = 0;
+	this.turret_angle = Math.PI / 8;
+	this.animation_frame = 0;
+	this.number_of_frames = 0;
+	this.missiles = 5;
+	this.lives = 3;
+	this.topEdge = 0;
+	this.bottomEdge = 28;
+	this.leftEdge = 76;
+	this.rightEdge = 37;
+	this.left_index;
+	this.right_index;
+	this.collision_index;
 };
 
 Helicopter.prototype = {
@@ -92,9 +92,9 @@ Helicopter.prototype = {
 			this.pitch_angle = 0;
 		}
 
-		if(this.game.mouse_x >= this.x && this.game.mouse_y >= this.y){
+		if(this.game.mouse_x >= this.x - this.game.background.back_x && this.game.mouse_y >= this.y){
 
-			this.turret_angle = Math.atan((this.game.mouse_y - this.y) / (this.game.mouse_x - this.x)) - .6;
+			this.turret_angle = Math.atan((this.game.mouse_y - this.y) / (this.game.mouse_x - this.x + this.game.background.back_x)) - .6;
 		}
 
 	},
@@ -105,7 +105,7 @@ Helicopter.prototype = {
 		// a different location to account for the tilted barrel.
 		if(inputState.right){
 		  
-		  missile = new Missile(this.x - 25 - this.game.background.back_x, this.y + 25, mouse_x, mouse_y, this.game.missiles.length, this.game)
+		  missile = new Missile(this.x - 25, this.y + 25, mouse_x, mouse_y, this.game.missiles.length, this.game)
 		  this.game.collision_system.add(missile, missile.x - missile.leftEdge, missile.y + missile.rightEdge)
 		  return missile;
 		}
@@ -114,12 +114,12 @@ Helicopter.prototype = {
 		// a different location to account for the tilted barrel.
 		if(inputState.left){
 		  
-		  missile = new Missile(this.x - 25 - this.game.background.back_x, this.y + 25, mouse_x, mouse_y, this.game.missiles.length, this.game)
+		  missile = new Missile(this.x - 25, this.y + 25, mouse_x, mouse_y, this.game.missiles.length, this.game)
 		  this.game.collision_system.add(missile, missile.x - missile.leftEdge, missile.y + missile.rightEdge)
 		  return missile;
 		}
 		
-		missile = new Missile(this.x - this.game.background.back_x, this.y + 30, mouse_x, mouse_y, this.game.missiles.length, this.game)
+		missile = new Missile(this.x, this.y + 30, mouse_x, mouse_y, this.game.missiles.length, this.game)
 	  this.game.collision_system.add(missile, missile.x - missile.leftEdge, missile.y + missile.rightEdge)
 	  return missile;
 	},
@@ -186,8 +186,8 @@ Helicopter.prototype = {
 	},
 	
 	nextLevel: function(){
-    this.x = 200;
-    this.y = 200;
+    	this.x = 200;
+    	this.y = 200;
 	  
 	}
 };
